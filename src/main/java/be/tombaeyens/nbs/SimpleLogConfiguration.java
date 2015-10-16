@@ -11,11 +11,17 @@
  * limitations under the License. */
 package be.tombaeyens.nbs;
 
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 
 /**
  * @author Tom Baeyens
  */
-public interface RequestHandler {
+public class SimpleLogConfiguration {
 
-  void handle(Request request, Response response);
+  public static SimpleLoggerFactory initialize() {
+    SimpleLoggerFactory loggerFactory = SimpleLoggerFactory.INSTANCE;
+    InternalLoggerFactory.setDefaultFactory(loggerFactory);
+    return loggerFactory;
+  }
 }

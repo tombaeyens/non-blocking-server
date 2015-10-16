@@ -11,11 +11,8 @@
  * limitations under the License. */
 package be.tombaeyens.nbs;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderResult;
-import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.router.RouteResult;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLogger;
@@ -32,13 +29,11 @@ public class Request {
 
   private static InternalLogger log = InternalLoggerFactory.getInstance(Request.class);
 
-  HttpRequest httpRequest;
-  List<HttpContent> contentPieces;
+  FullHttpRequest fullHttpRequest;
   RouteResult<?> route;
 
-  public Request(HttpRequest httpRequest, RouteResult<?> route, List<HttpContent> content) {
-    this.httpRequest = httpRequest;
-    this.contentPieces = content;
+  public Request(FullHttpRequest fullHttpRequest, RouteResult<?> route) {
+    this.fullHttpRequest = fullHttpRequest;
     this.route = route;
   }
 
@@ -66,39 +61,16 @@ public class Request {
     return getContentString(CharsetUtil.UTF_8);
   }
   
-  public boolean hasContentDecoderResultFailure() {
-    if (contentPieces==null || contentPieces.isEmpty()) {
-      return false;
-    }
-    for (HttpContent httpContentPiece: contentPieces){
-      DecoderResult decoderResult = httpContentPiece.getDecoderResult();
-      if (decoderResult.isFailure()) {
-        return true;
-      }
-    }
-    return false;
+  public boolean isDecodingFailed() {
+    return fullHttpRequest.getDecoderResult().isFailure();
   }
 
   public String getContentString(Charset charset) {
-    if (contentPieces==null || contentPieces.isEmpty()) {
-      return null;
-    }
-    StringBuffer content = new StringBuffer();
-    int count = 0;
-    for (HttpContent httpContentPiece: contentPieces){
-      ByteBuf byteBufPiece = httpContentPiece.content();
-      if (byteBufPiece.isReadable()) {
-        log.debug("Reading content piece "+count++);
-        content.append(byteBufPiece.toString(charset));
-      } else {
-        log.debug("Reading unreadable content piece "+count++);
-      }
-    }
-    return content.toString();
+    return fullHttpRequest.content().toString(charset);
   }
 
   public String getHeader(String name) {
-    HttpHeaders headers = httpRequest.headers();
+    HttpHeaders headers = fullHttpRequest.headers();
     return headers.get(name);
   }
 }

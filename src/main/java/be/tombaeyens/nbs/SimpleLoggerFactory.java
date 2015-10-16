@@ -51,7 +51,7 @@ public class SimpleLoggerFactory extends InternalLoggerFactory {
   /** maps logger names to simple loggers */
   Map<String,SimpleLogger> loggers = new ConcurrentHashMap<>();
   /** maps logger name parts to configured log levels */
-  Map<String,Level> configuredLevels = Collections.synchronizedMap(new LinkedHashMap<>());
+  Map<String,Level> configuredLevels = (Map)Collections.synchronizedMap(new LinkedHashMap<>());
   
   @Override
   protected InternalLogger newInstance(String name) {

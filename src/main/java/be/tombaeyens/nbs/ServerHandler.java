@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -37,18 +38,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ChannelHandler.Sharable
-public class HttpRouterServerHandler extends SimpleChannelInboundHandler<Object> {
+public class ServerHandler extends SimpleChannelInboundHandler<Object> {
   
-  private static InternalLogger log = InternalLoggerFactory.getInstance(HttpRouterServerHandler.class);
+  private static InternalLogger log = InternalLoggerFactory.getInstance(ServerHandler.class);
 
   private final Router<Class< ? extends RequestHandler>> router;
 
-  public HttpRouterServerHandler(Router<Class< ? extends RequestHandler>> router) {
+  public ServerHandler(Router<Class< ? extends RequestHandler>> router) {
     this.router = router;
   }
 
-  private HttpRequest httpRequest;
-  private List<HttpContent> httpContentPieces;
+  private FullHttpRequest fullHttpRequest;
   private RouteResult<Class< ? extends RequestHandler>> route;
 
   @Override
@@ -58,10 +58,10 @@ public class HttpRouterServerHandler extends SimpleChannelInboundHandler<Object>
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
-    if (msg instanceof HttpRequest) {
-      this.httpRequest = (HttpRequest) msg;
+    if (msg instanceof FullHttpRequest) {
+      this.fullHttpRequest = (FullHttpRequest) msg;
 
-      if (HttpHeaders.is100ContinueExpected(httpRequest)) {
+      if (HttpHeaders.is100ContinueExpected(fullHttpRequest)) {
         send100Continue(ctx);
       }
 
@@ -70,29 +70,19 @@ public class HttpRouterServerHandler extends SimpleChannelInboundHandler<Object>
       // decoderResult.cause();
       // }
 
-      this.route = router.route(httpRequest.getMethod(), httpRequest.getUri());
-    }
+      this.route = router.route(fullHttpRequest.getMethod(), fullHttpRequest.getUri());
+      
+      Request request = new Request(fullHttpRequest, route);
+      Response response = new Response(ctx);
+      RequestHandler requestHandler = instantiateRequestHandler();
+      requestHandler.handle(request, response);
 
-    if (msg instanceof HttpContent) {
-      if (httpContentPieces == null) {
-        httpContentPieces = new ArrayList<HttpContent>();
-      }
-      httpContentPieces.add((HttpContent) msg);
-      log.debug("adding piece %s", msg);
-
-      if (msg instanceof LastHttpContent) {
-        Request request = new Request(httpRequest, route, httpContentPieces);
-        Response response = new Response(ctx);
-        RequestHandler requestHandler = instantiateRequestHandler();
-        requestHandler.handle(request, response);
-
-        HttpResponse httpResponse = response.getHttpResponse();
-        if (!HttpHeaders.isKeepAlive(httpRequest)) {
-          ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
-        } else {
-          httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-          ctx.writeAndFlush(httpResponse);
-        }
+      HttpResponse httpResponse = response.getHttpResponse();
+      if (!HttpHeaders.isKeepAlive(fullHttpRequest)) {
+        ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
+      } else {
+        fullHttpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+        ctx.writeAndFlush(httpResponse);
       }
     }
   }
