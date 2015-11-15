@@ -9,32 +9,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package deprecated.schema;
+package be.tombaeyens.cbe.util.log;
 
 
-/**
+
+/** enables runtime configuration of loggers and allows for 
+ * easy programatic configuration instead of resource files.
+ * 
  * @author Tom Baeyens
  */
-public class StringSchema extends AbstractSchema {
+public class SimpleSlf4jConfiguration {
 
-  public static final String TYPE_STRING = "string";
-  
-  public static final AbstractSchema INSTANCE = new StringSchema();
-  
-  protected String pattern;
-
-  public StringSchema() {
-    this.type = TYPE_STRING;
-  }
-  
-  public String getPattern() {
-    return this.pattern;
-  }
-  public void setPattern(String pattern) {
-    this.pattern = pattern;
-  }
-  public StringSchema pattern(String pattern) {
-    this.pattern = pattern;
-    return this;
+  public static SimpleSlf4jILoggerFactory initialize() {
+    // SLF4J is initialized because org.slf4j.impl.StaticLoggerBinder is on the classpath 
+    
+    // Bridging netty logging to SLF4J
+    // InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
+    
+    return SimpleSlf4jILoggerFactory.INSTANCE;
   }
 }

@@ -9,24 +9,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package deprecated.schema;
+package be.tombaeyens.cbe.http.framework;
+
+import be.tombaeyens.cbe.db.Db;
+
+
 
 
 /**
  * @author Tom Baeyens
  */
-public class SchemaRef extends Schema {
+public abstract class AbstractRequestHandler implements RequestHandler, ServiceConsumer {
 
-  protected String $ref;
+  protected ServiceLocator serviceLocator;
 
-  public String get$ref() {
-    return this.$ref;
+  @Override
+  public void setServiceLocator(ServiceLocator serviceLocator) {
+    this.serviceLocator = serviceLocator;
   }
-  public void set$ref(String $ref) {
-    this.$ref = $ref;
-  }
-  public SchemaRef $ref(String $ref) {
-    this.$ref = $ref;
-    return this;
+
+  public Db getDb() {
+    return serviceLocator.getDb();
   }
 }

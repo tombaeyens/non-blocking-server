@@ -29,8 +29,6 @@ import be.tombaeyens.cbe.util.log.SimpleSlf4jILoggerFactory;
  */
 public class StaticLoggerBinder implements LoggerFactoryBinder {
 
-  private static final SimpleSlf4jILoggerFactory ILOGGER_FACTORY = new SimpleSlf4jILoggerFactory();
-
   /**
    * Declare the version of the SLF4J API this implementation is compiled
    * against. The value of this field is usually modified with each release.
@@ -69,7 +67,7 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
   }
 
   public ILoggerFactory getLoggerFactory() {
-    return ILOGGER_FACTORY;
+    return SimpleSlf4jILoggerFactory.INSTANCE;
   }
 
   public String getLoggerFactoryClassStr() {

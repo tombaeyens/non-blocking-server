@@ -9,18 +9,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package deprecated.schema;
+package be.tombaeyens.cbe.http.framework;
 
 
 /**
  * @author Tom Baeyens
  */
-public class NumberSchema extends AbstractSchema {
+public interface ServiceConsumer {
 
-  public static final String TYPE_NUMBER = "number";
-
-  public NumberSchema() {
-    this.type = TYPE_NUMBER;
-  }
+  void setServiceLocator(ServiceLocator serviceLocator);
 
 }

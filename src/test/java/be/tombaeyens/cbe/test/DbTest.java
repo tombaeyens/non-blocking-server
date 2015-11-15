@@ -16,8 +16,6 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import org.junit.Test;
 
-import deprecated.db.Result;
-import deprecated.db.Tx;
 import be.tombaeyens.cbe.db.Db;
 import be.tombaeyens.cbe.db.DbBuilder;
 
@@ -41,6 +39,5 @@ public class DbTest {
 
     db.dropTables();
     db.initializeTables();
-
   }
 }

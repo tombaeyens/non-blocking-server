@@ -13,10 +13,10 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.router;
 
+import io.netty.handler.codec.http.router.Router;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
 import be.tombaeyens.cbe.http.requests.HelloPost;
 import be.tombaeyens.cbe.http.requests.Oops;
-import io.netty.handler.codec.http.router.Router;
 
 
 /**

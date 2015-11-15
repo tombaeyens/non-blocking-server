@@ -9,21 +9,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.util.log;
+package be.tombaeyens.cbe.http.framework;
 
-import io.netty.util.internal.logging.InternalLoggerFactory;
+import be.tombaeyens.cbe.db.Db;
 
 
-/** enables runtime configuration of loggers and allows for 
- * easy programatic configuration instead of resource files.
- * 
+/**
  * @author Tom Baeyens
  */
-public class SimpleLogConfiguration {
+public class ServiceLocator {
 
-  public static SimpleLoggerFactory initialize() {
-    SimpleLoggerFactory loggerFactory = SimpleLoggerFactory.INSTANCE;
-    InternalLoggerFactory.setDefaultFactory(loggerFactory);
-    return loggerFactory;
+  protected Db db;
+  
+  public ServiceLocator(Db db) {
+    this.db = db;
+  }
+
+  public Db getDb() {
+    return this.db;
   }
 }

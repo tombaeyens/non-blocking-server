@@ -23,8 +23,8 @@ import java.nio.charset.Charset;
 
 import be.tombaeyens.cbe.http.framework.Server;
 import be.tombaeyens.cbe.http.framework.ServerHandler;
-import be.tombaeyens.cbe.util.log.SimpleLogConfiguration;
-import be.tombaeyens.cbe.util.log.SimpleLoggerFactory.Level;
+import be.tombaeyens.cbe.util.log.SimpleSlf4jConfiguration;
+import be.tombaeyens.cbe.util.log.SimpleSlf4jILoggerFactory.Level;
 
 
 /**
@@ -33,7 +33,7 @@ import be.tombaeyens.cbe.util.log.SimpleLoggerFactory.Level;
 public class ServerMain {
 
   static {
-    SimpleLogConfiguration.initialize()
+    SimpleSlf4jConfiguration.initialize()
       //.configure("io.netty", Level.INFO)
       ;
   }
@@ -41,7 +41,7 @@ public class ServerMain {
   private static InternalLogger log = InternalLoggerFactory.getInstance(ServerHandler.class);
 
   public static void main(String[] args) throws Exception {
-    SimpleLogConfiguration.initialize()
+    SimpleSlf4jConfiguration.initialize()
       .configure("io.netty", Level.INFO);
 
     Server server = new Server();

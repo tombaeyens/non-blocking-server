@@ -15,7 +15,6 @@
  */
 package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.http.router.CbeRouter;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -24,6 +23,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.router.Router;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import be.tombaeyens.cbe.db.Db;
+import be.tombaeyens.cbe.db.DbBuilder;
+import be.tombaeyens.cbe.http.router.CbeRouter;
 
 public class Server {
 
@@ -44,7 +46,15 @@ public class Server {
     workerGroup = new NioEventLoopGroup();
 
     try {
-      final Router<Class<? extends RequestHandler>> router = new CbeRouter();
+      Db db = new DbBuilder()
+        .connectionString("jdbc:postgresql://localhost/cbe")
+        .username("test")
+        .password("test")
+        .build();
+      
+      ServiceLocator serviceLocator = new ServiceLocator(db);
+      
+      Router<Class<? extends RequestHandler>> router = new CbeRouter();
 
       ServerBootstrap serverBootstrap = new ServerBootstrap()
         .group(bossGroup, workerGroup);
@@ -53,7 +63,7 @@ public class Server {
         .childOption(ChannelOption.SO_KEEPALIVE, java.lang.Boolean.TRUE)
         .channel(NioServerSocketChannel.class)
         // .handler(new LoggingHandler(LogLevel.INFO))
-        .childHandler(new ServerChannelInitializer(router));
+        .childHandler(new ServerChannelInitializer(router, serviceLocator));
 
       channel = serverBootstrap
         .bind("localhost", port)

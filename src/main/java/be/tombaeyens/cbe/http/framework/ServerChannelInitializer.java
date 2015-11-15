@@ -28,9 +28,11 @@ import io.netty.handler.codec.http.router.Router;
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
   
   Router<Class<? extends RequestHandler>> router;
+  ServiceLocator serviceLocator;
   
-  public ServerChannelInitializer(Router<Class< ? extends RequestHandler>> router) {
+  public ServerChannelInitializer(Router<Class< ? extends RequestHandler>> router, ServiceLocator serviceLocator) {
     this.router = router;
+    this.serviceLocator = serviceLocator;
   }
 
   @Override
@@ -38,7 +40,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     ChannelPipeline pipeline = ch.pipeline();
     pipeline.addLast(new HttpServerCodec());
     pipeline.addLast(new HttpObjectAggregator(1024*1024)); // max 1 MB
-    pipeline.addLast(new ServerHandler(router));
+    pipeline.addLast(new ServerHandler(router, serviceLocator));
     pipeline.addLast(new BadClientSilencer());
   }
 }

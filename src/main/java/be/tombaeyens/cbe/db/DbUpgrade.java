@@ -11,7 +11,7 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.db;
 
-import deprecated.db.Tx;
+import org.skife.jdbi.v2.Handle;
 
 
 /**
@@ -19,5 +19,5 @@ import deprecated.db.Tx;
  */
 public interface DbUpgrade {
 
-  public void execute(Tx tx);
+  public void execute(Handle handle);
 }

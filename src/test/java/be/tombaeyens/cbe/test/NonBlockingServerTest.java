@@ -17,8 +17,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import be.tombaeyens.cbe.http.framework.Server;
-import be.tombaeyens.cbe.util.log.SimpleLogConfiguration;
-import be.tombaeyens.cbe.util.log.SimpleLoggerFactory.Level;
 
 
 /**
@@ -48,14 +46,17 @@ public class NonBlockingServerTest {
   }
   
   public static Request GET(final String path) {
-    return Request.Get("http://localhost:8000/"+path)
-      .connectTimeout(1000)
-      .socketTimeout(1000);
+    return configure(Request.Get("http://localhost:8000/"+path));
   }
   
   public static Request POST(final String path) {
-    return Request.Post("http://localhost:8000/"+path)
-        .connectTimeout(1000)
-        .socketTimeout(1000);
+    return Request.Post("http://localhost:8000/"+path);
+  }
+
+  /** configurations applied to all requests */
+  private static Request configure(Request request) {
+    // request.socketTimeout(2000);  // default is -1
+    // request.connectTimeout(2000); // default is -1
+    return request;
   }
 }

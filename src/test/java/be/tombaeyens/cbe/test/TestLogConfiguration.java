@@ -11,8 +11,8 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.test;
 
-import be.tombaeyens.cbe.util.log.SimpleLogConfiguration;
-import be.tombaeyens.cbe.util.log.SimpleLoggerFactory.Level;
+import be.tombaeyens.cbe.util.log.SimpleSlf4jConfiguration;
+import be.tombaeyens.cbe.util.log.SimpleSlf4jILoggerFactory.Level;
 
 
 /**
@@ -21,9 +21,10 @@ import be.tombaeyens.cbe.util.log.SimpleLoggerFactory.Level;
 public class TestLogConfiguration {
 
   public static void initialize() {
-    SimpleLogConfiguration.initialize()
+    SimpleSlf4jConfiguration.initialize()
       .configure("io.netty", Level.INFO)
-      .configure("com.mchange", Level.INFO);
+      .configure("com.mchange", Level.INFO)
+      .configure("org.skife", Level.INFO);
   }
 
 }

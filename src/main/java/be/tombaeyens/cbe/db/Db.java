@@ -14,10 +14,7 @@ package be.tombaeyens.cbe.db;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.Statement;
 
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -25,8 +22,10 @@ import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
-import org.skife.jdbi.v2.util.BooleanMapper;
+import org.skife.jdbi.v2.logging.SLF4JLog;
+import org.skife.jdbi.v2.logging.SLF4JLog.Level;
 import org.skife.jdbi.v2.util.StringMapper;
+import org.slf4j.LoggerFactory;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -53,6 +52,8 @@ public class Db {
 //    ds.setMaxPoolSize(20);
       
       dbi = new DBI(ds);
+      // sql statements will be logged to Db.class as debug
+      dbi.setSQLLog(new SLF4JLog(LoggerFactory.getLogger(Db.class), Level.DEBUG));
 
     } catch (RuntimeException e) {
       throw e;
@@ -87,41 +88,19 @@ public class Db {
       return dbi.inTransaction(new TransactionCallback<Integer>() {
         @Override
         public Integer inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
-          
-          Connection connection = handle.getConnection();
-          
-          ResultSet rs = connection
-            .createStatement()
-            .executeQuery(
-              "SELECT * FROM information_schema.tables \n"+ 
-              "WHERE table_schema = 'public'");
-          
-          while (rs.next()) {
-            String tableName = rs.getString("table_name");
-            if ("configurations".equals(tableName.toLowerCase())) {
-              log.debug("Configurations found  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            } else {
-              log.debug(tableName);
-            }
-          }
-          
-          Boolean configurationsExists = handle.createQuery(
-              "SELECT EXISTS ( \n"+
-              "  SELECT 1  \n"+
-              "  FROM   pg_catalog.pg_class c \n"+
-              "  JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace \n"+
-              "  WHERE  c.relname = 'configurations' \n"+
-              "  AND    c.relkind = 'r' );")
-            .map(BooleanMapper.FIRST)
-            .first();
+          boolean configurationsExists = false;
+          ResultSet rs = handle
+                  .getConnection()
+                  .getMetaData()
+                  .getTables(null, null, "configurations", null);
+          configurationsExists = rs.next();
           
           if (configurationsExists) {
             log.debug("Table configurations exists, checking dbversion");
             String dbVersionString = handle.createQuery(
-                "SELECT value \n"+
+                "SELECT value "+
                 "FROM configurations "+
-                "WHERE id = :id")
-              .bind("id", "dbversion")
+                "WHERE id = 'dbversion'")
               .map(StringMapper.FIRST)
               .first();
             
@@ -151,7 +130,7 @@ public class Db {
       @Override
       public Void inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
         Update update = handle.createStatement(
-                "DROP TABLE IF EXISTS configurations CASCADE;");
+                "DROP TABLE IF EXISTS configurations CASCADE");
         update.execute();
         return null;
       }
@@ -162,12 +141,14 @@ public class Db {
     dbi.inTransaction(new TransactionCallback<Void>() {
       @Override
       public Void inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
-        Update update = handle.createStatement(
-                "CREATE TABLE configurations ( \n"+
-                "  id    VARCHAR(1024) CONSTRAINT cfg_pk PRIMARY KEY, \n"+
-                "  value VARCHAR(4096) \n"+
-                ");");
-        update.execute();
+        handle.createStatement(
+                "CREATE TABLE configurations ( "+
+                "  id    VARCHAR(1024) CONSTRAINT cfg_pk PRIMARY KEY, "+
+                "  value VARCHAR(4096) "+
+                ");").execute();
+        handle.createStatement(
+                "INSERT INTO configurations ( id, value ) "+
+                "VALUES ('dbversion', '"+APP_SCHEMA_VERSION+"')").execute();
         return null;
       }
     });

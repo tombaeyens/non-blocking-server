@@ -9,17 +9,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package deprecated.schema;
+package be.tombaeyens.cbe.http.requests;
+
+import be.tombaeyens.cbe.http.framework.AbstractRequestHandler;
+import be.tombaeyens.cbe.http.framework.Request;
+import be.tombaeyens.cbe.http.framework.Response;
 
 
 /**
  * @author Tom Baeyens
  */
-public class BooleanSchema extends AbstractSchema {
+public class CreateCollection extends AbstractRequestHandler {
 
-  public static final String TYPE_BOOLEAN = "boolean";
-
-  public BooleanSchema() {
-    this.type = TYPE_BOOLEAN;
+  @Override
+  public void handle(Request request, Response response) {
+    // TODO
   }
 }

@@ -35,9 +35,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
   // private static InternalLogger log = InternalLoggerFactory.getInstance(ServerHandler.class);
 
   private final Router<Class< ? extends RequestHandler>> router;
+  private final ServiceLocator serviceLocator;
 
-  public ServerHandler(Router<Class< ? extends RequestHandler>> router) {
+  public ServerHandler(Router<Class< ? extends RequestHandler>> router, ServiceLocator serviceLocator) {
     this.router = router;
+    this.serviceLocator = serviceLocator;
   }
 
   private FullHttpRequest fullHttpRequest;
@@ -67,6 +69,9 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
       Request request = new Request(fullHttpRequest, route);
       Response response = new Response(ctx);
       RequestHandler requestHandler = instantiateRequestHandler();
+      if (ServiceConsumer.class.isAssignableFrom(requestHandler.getClass())) {
+        ((ServiceConsumer)requestHandler).setServiceLocator(serviceLocator);
+      }
       requestHandler.handle(request, response);
 
       HttpResponse httpResponse = response.getHttpResponse();

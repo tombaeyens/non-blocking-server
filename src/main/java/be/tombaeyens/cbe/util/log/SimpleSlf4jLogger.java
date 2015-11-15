@@ -11,10 +11,10 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.util.log;
 
-import io.netty.util.internal.logging.InternalLogger;
-
 import org.slf4j.Logger;
 import org.slf4j.Marker;
+
+import be.tombaeyens.cbe.util.log.SimpleSlf4jILoggerFactory.Level;
 
 
 /**
@@ -22,315 +22,329 @@ import org.slf4j.Marker;
  */
 public class SimpleSlf4jLogger implements Logger {
 
-  InternalLogger logger;
-  
-  public SimpleSlf4jLogger(InternalLogger logger) {
-    this.logger = logger;
-  }
+  SimpleSlf4jILoggerFactory factory;
+  String name;
+  Level level;
 
+  public SimpleSlf4jLogger(SimpleSlf4jILoggerFactory factory, String name) {
+    this.factory = factory;
+    this.name = name;
+  }
+  
   @Override
   public String getName() {
-    return logger.name();
+    return name;
+  }
+  
+  public void setLevel(Level level) {
+    this.level = level;
+  }
+
+  public boolean isEnabled(Level level) {
+    if (level==null) {
+      level = factory.defaultLevel;
+    }
+    return level.getNumber()>=level.getNumber();
   }
 
   @Override
   public boolean isTraceEnabled() {
-    return logger.isTraceEnabled();
+    return isEnabled(Level.TRACE);
   }
 
   @Override
   public void trace(String msg) {
-    logger.trace(msg);
+    factory.log(this, Level.TRACE, msg);
   }
 
   @Override
   public void trace(String format, Object arg) {
-    logger.trace(format, arg);
+    factory.log(this, Level.TRACE, format, arg);
   }
 
   @Override
   public void trace(String format, Object arg1, Object arg2) {
-    logger.trace(format, arg1, arg2);
+    factory.log(this, Level.TRACE, format, arg1, arg2);
   }
 
   @Override
   public void trace(String format, Object... arguments) {
-    logger.trace(format, arguments);
+    factory.log(this, Level.TRACE, format, arguments);
   }
 
   @Override
   public void trace(String msg, Throwable t) {
-    logger.trace(msg, t);
+    factory.log(this, Level.TRACE, msg, t);
   }
 
   @Override
   public boolean isTraceEnabled(Marker marker) {
-    return logger.isTraceEnabled();
+    return isEnabled(Level.TRACE);
   }
 
   @Override
   public void trace(Marker marker, String msg) {
-    logger.trace(msg);
+    factory.log(this, Level.TRACE, msg);
   }
 
   @Override
   public void trace(Marker marker, String format, Object arg) {
-    logger.trace(format, arg);
+    factory.log(this, Level.TRACE, format, arg);
   }
 
   @Override
   public void trace(Marker marker, String format, Object arg1, Object arg2) {
-    logger.trace(format, arg1, arg2);
+    factory.log(this, Level.TRACE, format, arg1, arg2);
   }
 
   @Override
   public void trace(Marker marker, String format, Object... argArray) {
-    logger.trace(format, argArray);
+    factory.log(this, Level.TRACE, format, argArray);
   }
 
   @Override
   public void trace(Marker marker, String msg, Throwable t) {
-    logger.trace(msg, t);
+    factory.log(this, Level.TRACE, msg, t);
   }
 
   @Override
   public boolean isDebugEnabled() {
-    return logger.isDebugEnabled();
+    return isEnabled(Level.DEBUG);
   }
   
   @Override
   public void debug(String msg) {
-    logger.debug(msg);
+    factory.log(this, Level.DEBUG, msg);
   }
   
   @Override
   public void debug(String format, Object arg) {
-    logger.debug(format, arg);
+    factory.log(this, Level.DEBUG, format, arg);
   }
   
   @Override
   public void debug(String format, Object arg1, Object arg2) {
-    logger.debug(format, arg1, arg2);
+    factory.log(this, Level.DEBUG, format, arg1, arg2);
   }
   
   @Override
   public void debug(String format, Object... arguments) {
-    logger.debug(format, arguments);
+    factory.log(this, Level.DEBUG, format, arguments);
   }
   
   @Override
   public void debug(String msg, Throwable t) {
-    logger.debug(msg, t);
+    factory.log(this, Level.DEBUG, msg, t);
   }
   
   @Override
   public boolean isDebugEnabled(Marker marker) {
-    return logger.isDebugEnabled();
+    return isEnabled(Level.DEBUG);
   }
   
   @Override
   public void debug(Marker marker, String msg) {
-    logger.debug(msg);
+    factory.log(this, Level.DEBUG, msg);
   }
   
   @Override
   public void debug(Marker marker, String format, Object arg) {
-    logger.debug(format, arg);
+    factory.log(this, Level.DEBUG, format, arg);
   }
   
   @Override
   public void debug(Marker marker, String format, Object arg1, Object arg2) {
-    logger.debug(format, arg1, arg2);
+    factory.log(this, Level.DEBUG, format, arg1, arg2);
   }
   
   @Override
   public void debug(Marker marker, String format, Object... argArray) {
-    logger.debug(format, argArray);
+    factory.log(this, Level.DEBUG, format, argArray);
   }
   
   @Override
   public void debug(Marker marker, String msg, Throwable t) {
-    logger.debug(msg, t);
+    factory.log(this, Level.DEBUG, msg, t);
   }
 
   @Override
   public boolean isInfoEnabled() {
-    return logger.isInfoEnabled();
+    return isEnabled(Level.INFO);
   }
 
   @Override
   public void info(String msg) {
-    logger.info(msg);
+    factory.log(this, Level.INFO, msg);
   }
 
   @Override
   public void info(String format, Object arg) {
-    logger.info(format, arg);
+    factory.log(this, Level.INFO, format, arg);
   }
 
   @Override
   public void info(String format, Object arg1, Object arg2) {
-    logger.info(format, arg1, arg2);
+    factory.log(this, Level.INFO, format, arg1, arg2);
   }
 
   @Override
   public void info(String format, Object... arguments) {
-    logger.info(format, arguments);
+    factory.log(this, Level.INFO, format, arguments);
   }
 
   @Override
   public void info(String msg, Throwable t) {
-    logger.info(msg, t);
+    factory.log(this, Level.INFO, msg, t);
   }
 
   @Override
   public boolean isInfoEnabled(Marker marker) {
-    return logger.isInfoEnabled();
+    return isEnabled(Level.INFO);
   }
 
   @Override
   public void info(Marker marker, String msg) {
-    logger.info(msg);
+    factory.log(this, Level.INFO, msg);
   }
 
   @Override
   public void info(Marker marker, String format, Object arg) {
-    logger.info(format, arg);
+    factory.log(this, Level.INFO, format, arg);
   }
 
   @Override
   public void info(Marker marker, String format, Object arg1, Object arg2) {
-    logger.info(format, arg1, arg2);
+    factory.log(this, Level.INFO, format, arg1, arg2);
   }
 
   @Override
   public void info(Marker marker, String format, Object... argArray) {
-    logger.info(format, argArray);
+    factory.log(this, Level.INFO, format, argArray);
   }
 
   @Override
   public void info(Marker marker, String msg, Throwable t) {
-    logger.info(msg, t);
+    factory.log(this, Level.INFO, msg, t);
   }
 
 
  @Override
  public boolean isWarnEnabled() {
-   return logger.isWarnEnabled();
+   return isEnabled(Level.WARNING);
  }
 
  @Override
  public void warn(String msg) {
-   logger.warn(msg);
+   factory.log(this, Level.WARNING, msg);
  }
 
  @Override
  public void warn(String format, Object arg) {
-   logger.warn(format, arg);
+   factory.log(this, Level.WARNING, format, arg);
  }
 
  @Override
  public void warn(String format, Object arg1, Object arg2) {
-   logger.warn(format, arg1, arg2);
+   factory.log(this, Level.WARNING, format, arg1, arg2);
  }
 
  @Override
  public void warn(String format, Object... arguments) {
-   logger.warn(format, arguments);
+   factory.log(this, Level.WARNING, format, arguments);
  }
 
  @Override
  public void warn(String msg, Throwable t) {
-   logger.warn(msg, t);
+   factory.log(this, Level.WARNING, msg, t);
  }
 
  @Override
  public boolean isWarnEnabled(Marker marker) {
-   return logger.isWarnEnabled();
+   return isEnabled(Level.WARNING);
  }
 
  @Override
  public void warn(Marker marker, String msg) {
-   logger.warn(msg);
+   factory.log(this, Level.WARNING, msg);
  }
 
  @Override
  public void warn(Marker marker, String format, Object arg) {
-   logger.warn(format, arg);
+   factory.log(this, Level.WARNING, format, arg);
  }
 
  @Override
  public void warn(Marker marker, String format, Object arg1, Object arg2) {
-   logger.warn(format, arg1, arg2);
+   factory.log(this, Level.WARNING, format, arg1, arg2);
  }
 
  @Override
  public void warn(Marker marker, String format, Object... argArray) {
-   logger.warn(format, argArray);
+   factory.log(this, Level.WARNING, format, argArray);
  }
 
  @Override
  public void warn(Marker marker, String msg, Throwable t) {
-   logger.warn(msg, t);
+   factory.log(this, Level.WARNING, msg, t);
  }
 
  @Override
  public boolean isErrorEnabled() {
-   return logger.isErrorEnabled();
+   return isEnabled(Level.ERROR);
  }
 
  @Override
  public void error(String msg) {
-   logger.error(msg);
+   factory.log(this, Level.ERROR, msg);
  }
 
  @Override
  public void error(String format, Object arg) {
-   logger.error(format, arg);
+   factory.log(this, Level.ERROR, format, arg);
  }
 
  @Override
  public void error(String format, Object arg1, Object arg2) {
-   logger.error(format, arg1, arg2);
+   factory.log(this, Level.ERROR, format, arg1, arg2);
  }
 
  @Override
  public void error(String format, Object... arguments) {
-   logger.error(format, arguments);
+   factory.log(this, Level.ERROR, format, arguments);
  }
 
  @Override
  public void error(String msg, Throwable t) {
-   logger.error(msg, t);
+   factory.log(this, Level.ERROR, msg, t);
  }
 
  @Override
  public boolean isErrorEnabled(Marker marker) {
-   return logger.isErrorEnabled();
+   return isEnabled(Level.ERROR);
  }
 
  @Override
  public void error(Marker marker, String msg) {
-   logger.error(msg);
+   factory.log(this, Level.ERROR, msg);
  }
 
  @Override
  public void error(Marker marker, String format, Object arg) {
-   logger.error(format, arg);
+   factory.log(this, Level.ERROR, format, arg);
  }
 
  @Override
  public void error(Marker marker, String format, Object arg1, Object arg2) {
-   logger.error(format, arg1, arg2);
+   factory.log(this, Level.ERROR, format, arg1, arg2);
  }
 
  @Override
  public void error(Marker marker, String format, Object... argArray) {
-   logger.error(format, argArray);
+   factory.log(this, Level.ERROR, format, argArray);
  }
 
  @Override
  public void error(Marker marker, String msg, Throwable t) {
-   logger.error(msg, t);
+   factory.log(this, Level.ERROR, msg, t);
  }
 }
