@@ -11,20 +11,19 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.db;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
-import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.logging.SLF4JLog;
 import org.skife.jdbi.v2.logging.SLF4JLog.Level;
 import org.skife.jdbi.v2.util.StringMapper;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -33,19 +32,30 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 /**
  * @author Tom Baeyens
  */
-public class Db {
+public abstract class Db {
   
-  static InternalLogger log = InternalLoggerFactory.getInstance(Db.class);
+  private static final Logger log = LoggerFactory.getLogger(Db.class);
   
   DBI dbi;
+  Map<String,DbTable> tables = new HashMap<>();;
   
   public Db(DbBuilder dbBuilder) {
     try {
       ComboPooledDataSource ds = new ComboPooledDataSource();
-      ds.setDriverClass( "org.postgresql.Driver" ); //loads the jdbc driver            
-      ds.setJdbcUrl( "jdbc:postgresql://localhost/cbe" );
-      ds.setUser("test");                                  
-      ds.setPassword("test");
+      ds.setDriverClass(getDriverClassName()); //loads the jdbc driver
+      
+      String connectionUrl = dbBuilder.getConnectionUrl();
+      if (connectionUrl==null) {
+        String server = dbBuilder.getServer();
+        Integer port = dbBuilder.getPort();
+        String databaseName = dbBuilder.getDatabaseName();
+        connectionUrl = getConnectionUrl(server, port, databaseName);
+      }
+      ds.setJdbcUrl(connectionUrl);
+      
+      ds.setUser(dbBuilder.getUsername());                                  
+      ds.setPassword(dbBuilder.getPassword());
+
 //    // the settings below are optional -- c3p0 can work with defaults
 //    ds.setMinPoolSize(5);                                     
 //    ds.setAcquireIncrement(5);
@@ -62,10 +72,7 @@ public class Db {
     }                                  
   }
   
-  protected static final DbUpgrade[] DB_UPGRADES = new DbUpgrade[
-    // TODO add upgrades here
-    ]{}; 
-  protected static int APP_SCHEMA_VERSION = DB_UPGRADES.length;
+  protected static int APP_SCHEMA_VERSION = 1;
   
   /** creates or upgrades the db tables */
   public Db initializeTables() {
@@ -97,10 +104,7 @@ public class Db {
           
           if (configurationsExists) {
             log.debug("Table configurations exists, checking dbversion");
-            String dbVersionString = handle.createQuery(
-                "SELECT value "+
-                "FROM configurations "+
-                "WHERE id = 'dbversion'")
+            String dbVersionString = handle.createQuery(configurationsQueryGetDbVersion())
               .map(StringMapper.FIRST)
               .first();
             
@@ -129,9 +133,8 @@ public class Db {
     dbi.inTransaction(new TransactionCallback<Void>() {
       @Override
       public Void inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
-        Update update = handle.createStatement(
-                "DROP TABLE IF EXISTS configurations CASCADE");
-        update.execute();
+        handle.createStatement(configurationsDropTable()).execute();
+        handle.createStatement(collectionsDropTable()).execute();
         return null;
       }
     });
@@ -141,19 +144,33 @@ public class Db {
     dbi.inTransaction(new TransactionCallback<Void>() {
       @Override
       public Void inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
-        handle.createStatement(
-                "CREATE TABLE configurations ( "+
-                "  id    VARCHAR(1024) CONSTRAINT cfg_pk PRIMARY KEY, "+
-                "  value VARCHAR(4096) "+
-                ");").execute();
-        handle.createStatement(
-                "INSERT INTO configurations ( id, value ) "+
-                "VALUES ('dbversion', '"+APP_SCHEMA_VERSION+"')").execute();
+        handle.createStatement(configurationsCreateTable()).execute();
+        handle.createStatement(collectionsCreateTable()).execute();
+        handle.createStatement(configurationsInsertDbVersion(Integer.toString(APP_SCHEMA_VERSION))).execute();
         return null;
       }
     });
   }
   
   protected void upgradeDbSchema(int dbSchemaVersion) {
+    while (dbSchemaVersion<APP_SCHEMA_VERSION) {
+      upgradeDbVersion(dbSchemaVersion+1);
+      dbSchemaVersion++;
+    }
   }
+  
+  protected abstract String getDriverClassName();
+  protected abstract String getConnectionUrl(String server, Integer port, String databaseName);
+
+  protected abstract String configurationsDropTable();
+  protected abstract String configurationsCreateTable();
+  protected abstract String configurationsQueryGetDbVersion();
+  protected abstract String configurationsInsertDbVersion(String appSchemaVersion);
+  /** upgrades the database from the previous version to the given dbVersion */
+  protected abstract void upgradeDbVersion(int dbVersion);
+
+  protected abstract String collectionsDropTable();
+  protected abstract String collectionsCreateTable();
+  
+  
 }

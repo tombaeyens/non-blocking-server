@@ -46,14 +46,6 @@ public class Server {
     workerGroup = new NioEventLoopGroup();
 
     try {
-      Db db = new DbBuilder()
-        .connectionString("jdbc:postgresql://localhost/cbe")
-        .username("test")
-        .password("test")
-        .build();
-      
-      ServiceLocator serviceLocator = new ServiceLocator(db);
-      
       Router<Class<? extends RequestHandler>> router = new CbeRouter();
 
       ServerBootstrap serverBootstrap = new ServerBootstrap()
@@ -63,7 +55,7 @@ public class Server {
         .childOption(ChannelOption.SO_KEEPALIVE, java.lang.Boolean.TRUE)
         .channel(NioServerSocketChannel.class)
         // .handler(new LoggingHandler(LogLevel.INFO))
-        .childHandler(new ServerChannelInitializer(router, serviceLocator));
+        .childHandler(new ServerChannelInitializer(router));
 
       channel = serverBootstrap
         .bind("localhost", port)

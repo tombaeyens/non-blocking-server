@@ -17,7 +17,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.junit.Test;
 
 import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.DbBuilder;
+import be.tombaeyens.cbe.db.PostgreSqlBuilder;
 
 
 /**
@@ -31,8 +31,9 @@ public class DbTest {
   
   @Test
   public void testDb() {
-    Db db = new DbBuilder()
-      .connectionString("jdbc:postgresql://localhost/cbe")
+    Db db = new PostgreSqlBuilder()
+      .server("localhost")
+      .databaseName("cbe")
       .username("test")
       .password("test")
       .build();

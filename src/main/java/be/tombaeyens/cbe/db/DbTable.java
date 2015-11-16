@@ -9,29 +9,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
-
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.PostgreSqlBuilder;
+package be.tombaeyens.cbe.db;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ServiceLocator {
+public class DbTable {
 
-  protected Db db;
-  
-  public ServiceLocator() {
-    this.db = new PostgreSqlBuilder()
-      .server("localhost")
-      .databaseName("cbe")
-      .username("test")
-      .password("test")
-      .build();
-  }
-
-  public Db getDb() {
-    return this.db;
-  }
 }

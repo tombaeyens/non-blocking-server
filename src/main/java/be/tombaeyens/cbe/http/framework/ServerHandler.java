@@ -32,8 +32,6 @@ import io.netty.handler.codec.http.router.Router;
 @ChannelHandler.Sharable
 public class ServerHandler extends SimpleChannelInboundHandler<Object> {
   
-  // private static InternalLogger log = InternalLoggerFactory.getInstance(ServerHandler.class);
-
   private final Router<Class< ? extends RequestHandler>> router;
   private final ServiceLocator serviceLocator;
 

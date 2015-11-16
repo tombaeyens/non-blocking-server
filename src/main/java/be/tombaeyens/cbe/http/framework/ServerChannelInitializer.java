@@ -22,7 +22,9 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.router.Router;
 
 
-/**
+/** Initializes each channel.  
+ * One object for the whole object, initialized in the {@link Server}.
+ * 
  * @author Tom Baeyens
  */
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
@@ -30,9 +32,9 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
   Router<Class<? extends RequestHandler>> router;
   ServiceLocator serviceLocator;
   
-  public ServerChannelInitializer(Router<Class< ? extends RequestHandler>> router, ServiceLocator serviceLocator) {
+  public ServerChannelInitializer(Router<Class< ? extends RequestHandler>> router) {
     this.router = router;
-    this.serviceLocator = serviceLocator;
+    this.serviceLocator = new ServiceLocator();
   }
 
   @Override

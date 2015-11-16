@@ -12,27 +12,79 @@
 package be.tombaeyens.cbe.db;
 
 
-/**
+/** Configuration properties for the database connection.
+ * 
  * @author Tom Baeyens
  */
-public class DbBuilder {
+public abstract class DbBuilder {
 
-  protected String connectionString;
+  protected String server;
+  protected Integer port;
+  protected String databaseName;
+  protected String connectionUrl;
   protected String username;
   protected String password;
-
-  public String getConnectionString() {
-    return this.connectionString;
+  
+  public abstract Db build();
+  
+  public String getServer() {
+    return this.server;
   }
-  public void setConnectionString(String connectionString) {
-    this.connectionString = connectionString;
+  /** The IP address or server domain name.
+   * Simplest way to specify the server.
+   * Always specify the databaseName as well 
+   * when using this configuration. 
+   * Alternatively specify the full JDBC connection 
+   * url with {@link #connectionUrl}. */
+  public void setServer(String server) {
+    this.server = server;
   }
-  public DbBuilder connectionString(String connectionString) {
-    this.connectionString = connectionString;
+  /** Simplest way to specify the server: put in an IP address or 
+   * the server domain name. */
+  public DbBuilder server(String server) {
+    this.server = server;
     return this;
   }
   
-
+  public Integer getPort() {
+    return this.port;
+  }
+  /** Optional configuration when specifying the server property. */
+  public void setPort(Integer port) {
+    this.port = port;
+  }
+  /** Optional configuration when specifying the server property. */
+  public DbBuilder port(Integer port) {
+    this.port = port;
+    return this;
+  }
+  
+  public String getDatabaseName() {
+    return this.databaseName;
+  }
+  public void setDatabaseName(String databaseName) {
+    this.databaseName = databaseName;
+  }
+  public DbBuilder databaseName(String databaseName) {
+    this.databaseName = databaseName;
+    return this;
+  }
+  
+  public String getConnectionUrl() {
+    return this.connectionUrl;
+  }
+  /** The jdbc connection url, which overrules properties 
+   * server, port and databaseName. */
+  public void setConnectionUrl(String connectionUrl) {
+    this.connectionUrl = connectionUrl;
+  }
+  /** The jdbc connection url, which overrules properties 
+   * server, port and databaseName. */
+  public DbBuilder connectionUrl(String connectionUrl) {
+    this.connectionUrl = connectionUrl;
+    return this;
+  }
+  
   public String getUsername() {
     return this.username;
   }
@@ -53,9 +105,5 @@ public class DbBuilder {
   public DbBuilder password(String password) {
     this.password = password;
     return this;
-  }
-  
-  public Db build() {
-    return new Db(this);
   }
 }
