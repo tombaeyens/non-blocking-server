@@ -11,18 +11,15 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.requests;
 
-import be.tombaeyens.cbe.http.framework.Request;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
-import be.tombaeyens.cbe.http.framework.Response;
-
 
 
 /**
  * @author Tom Baeyens
  */
-public class HelloPost implements RequestHandler {
+public class HelloPost extends RequestHandler {
 
-  public void handle(Request request, Response response) {
+  public void handle() {
     response.content("U heeft gevraagd ");
     response.content(request.getPathParameter("id"));
     response.content("\n");

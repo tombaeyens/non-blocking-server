@@ -9,20 +9,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.requests;
+package be.tombaeyens.cbe.test;
 
-import be.tombaeyens.cbe.http.framework.AbstractRequestHandler;
-import be.tombaeyens.cbe.http.framework.Request;
-import be.tombaeyens.cbe.http.framework.Response;
+import be.tombaeyens.cbe.db.IdGenerator;
 
 
 /**
  * @author Tom Baeyens
  */
-public class CreateCollection extends AbstractRequestHandler {
+public class TestIdGenerator extends IdGenerator {
+  
+  static long nextId = 1;
 
   @Override
-  public void handle(Request request, Response response) {
-    // TODO
+  public synchronized String nextId() {
+    return Long.toString(nextId++);
   }
 }

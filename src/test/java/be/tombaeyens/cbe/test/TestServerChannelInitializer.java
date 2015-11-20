@@ -9,20 +9,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.requests;
+package be.tombaeyens.cbe.test;
 
+import io.netty.handler.codec.http.router.Router;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
-
+import be.tombaeyens.cbe.http.framework.ServerChannelHandler;
+import be.tombaeyens.cbe.http.framework.ServerChannelInitializer;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Oops extends RequestHandler {
+public class TestServerChannelInitializer extends ServerChannelInitializer {
 
-  public void handle() {
-    response
-      .content("oops")
-      .statusNotFound();
+  protected TestServer testServer;
+  
+  public TestServerChannelInitializer(Router<Class< ? extends RequestHandler>> router, TestServer testServer) {
+    super(router);
+    this.testServer = testServer;
+  }
+
+  @Override
+  protected ServerChannelHandler createServerChannelHandler() {
+    return new TestServerChannelHandler(router, serviceLocator, this);
   }
 }

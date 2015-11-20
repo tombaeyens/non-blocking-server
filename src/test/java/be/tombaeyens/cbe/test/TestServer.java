@@ -9,40 +9,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
+package be.tombaeyens.cbe.test;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.postgres.PostgreSqlBuilder;
+import be.tombaeyens.cbe.http.framework.Server;
+import be.tombaeyens.cbe.http.framework.ServerChannelInitializer;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ServiceLocator {
-
-  protected Db db;
-  protected Gson gson;
+public class TestServer extends Server {
   
-  public ServiceLocator() {
-    this.db = new PostgreSqlBuilder()
-      .server("localhost")
-      .databaseName("cbe")
-      .username("test")
-      .password("test")
-      .build();
-    
-    this.gson = new GsonBuilder()
-      .create();
+  protected Exception latestException;
+
+  @Override
+  protected ServerChannelInitializer createServerChannelInitializer() {
+    return new TestServerChannelInitializer(router, this);
   }
 
-  public Db getDb() {
-    return this.db;
-  }
-
-  public Gson getGson() {
-    return gson;
+  public Throwable getLatestException() {
+    return latestException;
   }
 }

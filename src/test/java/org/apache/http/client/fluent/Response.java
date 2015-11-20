@@ -33,6 +33,7 @@ import java.io.InputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
@@ -42,11 +43,13 @@ import org.apache.http.util.EntityUtils;
 
 public class Response {
 
-    private final HttpResponse response;
-    private boolean consumed;
+    protected Request request;
+    protected final HttpResponse response;
+    protected boolean consumed;
 
-    Response(final HttpResponse response) {
+    Response(final HttpResponse response, Request request) {
         super();
+        this.request = request;
         this.response = response;
     }
 
@@ -114,6 +117,19 @@ public class Response {
             this.consumed = true;
         }
     }
+    
+    public Response assertStatusCreated() {
+      return assertStatus(HttpStatus.SC_CREATED);
+    }
+
+    public Response assertStatus(int expectedStatusCode) {
+      int responseStatusCode = response.getStatusLine().getStatusCode();
+      if (responseStatusCode!=expectedStatusCode) {
+        Throwable serverCause = request.getTestServer().getLatestException();
+        throw new BadStatusException("Expected "+expectedStatusCode+", but was "+responseStatusCode, serverCause);
+      }
+      return null;
+    }
 
     public void saveContent(final File file) throws IOException {
         assertNotConsumed();
@@ -133,5 +149,4 @@ public class Response {
             out.close();
         }
     }
-
 }

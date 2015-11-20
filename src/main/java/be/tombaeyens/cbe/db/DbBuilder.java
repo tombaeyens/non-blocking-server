@@ -24,6 +24,7 @@ public abstract class DbBuilder {
   protected String connectionUrl;
   protected String username;
   protected String password;
+  protected IdGenerator idGenerator = new IdGenerator();
   
   public abstract Db build();
   
@@ -104,6 +105,17 @@ public abstract class DbBuilder {
   }
   public DbBuilder password(String password) {
     this.password = password;
+    return this;
+  }
+
+  public IdGenerator getIdGenerator() {
+    return this.idGenerator;
+  }
+  public void setIdGenerator(IdGenerator idGenerator) {
+    this.idGenerator = idGenerator;
+  }
+  public DbBuilder idGenerator(IdGenerator idGenerator) {
+    this.idGenerator = idGenerator;
     return this;
   }
 }

@@ -29,13 +29,18 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.router.RouteResult;
 import io.netty.handler.codec.http.router.Router;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ChannelHandler.Sharable
-public class ServerHandler extends SimpleChannelInboundHandler<Object> {
+public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
+  
+  private static final Logger log = LoggerFactory.getLogger(ServerChannelHandler.class);
   
   private final Router<Class< ? extends RequestHandler>> router;
   private final ServiceLocator serviceLocator;
 
-  public ServerHandler(Router<Class< ? extends RequestHandler>> router, ServiceLocator serviceLocator) {
+  public ServerChannelHandler(Router<Class< ? extends RequestHandler>> router, ServiceLocator serviceLocator) {
     this.router = router;
     this.serviceLocator = serviceLocator;
   }
@@ -67,19 +72,32 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
       Request request = new Request(fullHttpRequest, route);
       Response response = new Response(ctx);
       RequestHandler requestHandler = instantiateRequestHandler();
-      if (ServiceConsumer.class.isAssignableFrom(requestHandler.getClass())) {
-        ((ServiceConsumer)requestHandler).setServiceLocator(serviceLocator);
-      }
-      requestHandler.handle(request, response);
-
-      HttpResponse httpResponse = response.getHttpResponse();
-      if (!HttpHeaders.isKeepAlive(fullHttpRequest)) {
-        ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
-      } else {
-        fullHttpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-        ctx.writeAndFlush(httpResponse);
+      requestHandler.request = request;
+      requestHandler.response = response;
+      requestHandler.serviceLocator = serviceLocator;
+      requestHandler.db = serviceLocator.getDb();
+      
+      try {
+        requestHandler.handle();
+      } catch (RuntimeException e) {
+        response.statusInternalServerError();
+        response.content("{ \"message\": \"oops\" }");
+        response.headerContentTypeApplicationJson();
+        requestHandlerException(e);
+      } finally {
+        HttpResponse httpResponse = response.getHttpResponse();
+        if (!HttpHeaders.isKeepAlive(fullHttpRequest)) {
+          ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
+        } else {
+          fullHttpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+          ctx.writeAndFlush(httpResponse);
+        }
       }
     }
+  }
+
+  protected void requestHandlerException(RuntimeException e) {
+    log.error("Request handler exception", e);
   }
 
   protected RequestHandler instantiateRequestHandler() {

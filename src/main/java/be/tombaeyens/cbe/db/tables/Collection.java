@@ -9,17 +9,36 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.db;
+package be.tombaeyens.cbe.db.tables;
 
 
 /**
  * @author Tom Baeyens
  */
-public class PostgreSqlBuilder extends DbBuilder {
+public class Collection {
 
-  @Override
-  public Db build() {
-    return new PostgreSqlDb(this);
+  protected String id;
+  protected String name;
+
+  public String getId() {
+    return this.id;
   }
-
+  public void setId(String id) {
+    this.id = id;
+  }
+  public Collection id(String id) {
+    this.id = id;
+    return this;
+  }
+  
+  public String getName() {
+    return this.name;
+  }
+  public void setName(String name) {
+    this.name = name;
+  }
+  public Collection name(String name) {
+    this.name = name;
+    return this;
+  }
 }

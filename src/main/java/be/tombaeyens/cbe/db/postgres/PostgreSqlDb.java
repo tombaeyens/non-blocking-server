@@ -9,7 +9,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
+package be.tombaeyens.cbe.db.postgres;
 
 import be.tombaeyens.cbe.db.Db;
 
@@ -17,24 +17,28 @@ import be.tombaeyens.cbe.db.Db;
 /**
  * @author Tom Baeyens
  */
-public abstract class RequestHandler {
+public class PostgreSqlDb extends Db {
 
-  protected Request request;
-  protected Response response;
-  protected ServiceLocator serviceLocator;
-  protected Db db;
-
-  public abstract void handle();
-
-  public <T> T readRequestBodyJson(Class<T> type) {
-    String content = request.getContentStringUtf8();
-    return serviceLocator.getGson().fromJson(content, type);
-  }
-  
-  public void writeResponseBodyJson(Object o) {
-    String json = serviceLocator.getGson().toJson(o);
-    response.headerContentTypeApplicationJson();
-    response.content(json);
+  public PostgreSqlDb(PostgreSqlBuilder dbBuilder) {
+    super(dbBuilder);
   }
 
+  @Override
+  protected String getDriverClassName() {
+    return "org.postgresql.Driver";
+  }
+
+  @Override
+  protected String getConnectionUrl(String server, Integer port, String databaseName) {
+    return "jdbc:postgresql://"+server+(port!=null?":"+port:"")+"/"+databaseName;
+  }
+
+  @Override
+  protected void upgradeDbVersion(int dbVersion) {
+  }
+
+  @Override
+  protected String getDropSqlTemplate() {
+    return "DROP TABLE IF EXISTS %s CASCADE";
+  }
 }

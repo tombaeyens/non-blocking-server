@@ -25,8 +25,6 @@ import java.util.List;
  */
 public class Request {
 
-  // private static InternalLogger log = InternalLoggerFactory.getInstance(Request.class);
-
   FullHttpRequest fullHttpRequest;
   RouteResult<?> route;
 
@@ -58,7 +56,7 @@ public class Request {
   public String getContentStringUtf8() {
     return getContentString(CharsetUtil.UTF_8);
   }
-  
+
   public boolean isDecodingFailed() {
     return fullHttpRequest.getDecoderResult().isFailure();
   }

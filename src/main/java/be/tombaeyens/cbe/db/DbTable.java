@@ -15,6 +15,27 @@ package be.tombaeyens.cbe.db;
 /**
  * @author Tom Baeyens
  */
-public class DbTable {
+public abstract class DbTable {
+  
+  protected Db db;
+  protected String name;
+  
+  public DbTable(Db db, String name) {
+    this.db = db;
+    this.name = name;
+  }
 
+  public String getName() {
+    return this.name;
+  }
+  
+  public Db getDb() {
+    return db;
+  }
+
+  public String sqlDrop() {
+    return String.format(db.getDropSqlTemplate(), name);
+  }
+
+  public abstract String sqlCreate();
 }

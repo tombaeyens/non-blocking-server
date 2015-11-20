@@ -9,40 +9,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
+package be.tombaeyens.cbe.db;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.postgres.PostgreSqlBuilder;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ServiceLocator {
+public class Query extends Operation {
 
-  protected Db db;
-  protected Gson gson;
-  
-  public ServiceLocator() {
-    this.db = new PostgreSqlBuilder()
-      .server("localhost")
-      .databaseName("cbe")
-      .username("test")
-      .password("test")
-      .build();
-    
-    this.gson = new GsonBuilder()
-      .create();
+  public Query(Tx tx, String sql) {
+    super(tx, sql);
   }
 
-  public Db getDb() {
-    return this.db;
+  public QueryResult execute() {
+    try {
+      ResultSet executeQuery = preparedStatement.executeQuery();
+      return new QueryResult(this, executeQuery);
+    } catch (SQLException e) {
+      throw new RuntimeException("Update failed: "+e.getMessage(), e);
+    }
   }
 
-  public Gson getGson() {
-    return gson;
-  }
 }

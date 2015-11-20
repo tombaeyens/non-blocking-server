@@ -17,7 +17,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.junit.Test;
 
 import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.PostgreSqlBuilder;
+import be.tombaeyens.cbe.db.postgres.PostgreSqlBuilder;
 
 
 /**
@@ -36,6 +36,7 @@ public class DbTest {
       .databaseName("cbe")
       .username("test")
       .password("test")
+      .idGenerator(new TestIdGenerator())
       .build();
 
     db.dropTables();

@@ -11,20 +11,19 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.db;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
-import java.util.HashMap;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.TransactionCallback;
-import org.skife.jdbi.v2.TransactionStatus;
-import org.skife.jdbi.v2.exceptions.CallbackFailedException;
-import org.skife.jdbi.v2.logging.SLF4JLog;
-import org.skife.jdbi.v2.logging.SLF4JLog.Level;
-import org.skife.jdbi.v2.util.StringMapper;
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import be.tombaeyens.cbe.db.tables.CollectionsTable;
+import be.tombaeyens.cbe.db.tables.ConfigurationsTable;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -36,13 +35,16 @@ public abstract class Db {
   
   private static final Logger log = LoggerFactory.getLogger(Db.class);
   
-  DBI dbi;
-  Map<String,DbTable> tables = new HashMap<>();;
+  protected static int APP_SCHEMA_VERSION = 1;
+  
+  DataSource dataSource;
+  Map<Class<? extends DbTable>,DbTable> dbTables = new LinkedHashMap<>();
+  IdGenerator idGenerator;
   
   public Db(DbBuilder dbBuilder) {
     try {
-      ComboPooledDataSource ds = new ComboPooledDataSource();
-      ds.setDriverClass(getDriverClassName()); //loads the jdbc driver
+      ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
+      comboPooledDataSource.setDriverClass(getDriverClassName()); //loads the jdbc driver
       
       String connectionUrl = dbBuilder.getConnectionUrl();
       if (connectionUrl==null) {
@@ -51,19 +53,20 @@ public abstract class Db {
         String databaseName = dbBuilder.getDatabaseName();
         connectionUrl = getConnectionUrl(server, port, databaseName);
       }
-      ds.setJdbcUrl(connectionUrl);
+      comboPooledDataSource.setJdbcUrl(connectionUrl);
       
-      ds.setUser(dbBuilder.getUsername());                                  
-      ds.setPassword(dbBuilder.getPassword());
+      comboPooledDataSource.setUser(dbBuilder.getUsername());                                  
+      comboPooledDataSource.setPassword(dbBuilder.getPassword());
 
 //    // the settings below are optional -- c3p0 can work with defaults
 //    ds.setMinPoolSize(5);                                     
 //    ds.setAcquireIncrement(5);
 //    ds.setMaxPoolSize(20);
       
-      dbi = new DBI(ds);
-      // sql statements will be logged to Db.class as debug
-      dbi.setSQLLog(new SLF4JLog(LoggerFactory.getLogger(Db.class), Level.DEBUG));
+      this.dataSource = comboPooledDataSource;
+      this.idGenerator = dbBuilder.getIdGenerator();
+
+      initializeDbTables();
 
     } catch (RuntimeException e) {
       throw e;
@@ -72,8 +75,28 @@ public abstract class Db {
     }                                  
   }
   
-  protected static int APP_SCHEMA_VERSION = 1;
-  
+  /** to customize a collection, override, first delegate to 
+   * this implementation and then overwrite the keys used 
+   * in this implementation with customized collection 
+   * implementations as values. */
+  protected void initializeDbTables() {
+    dbTables.put(ConfigurationsTable.class, new ConfigurationsTable(this));
+    dbTables.put(CollectionsTable.class, new CollectionsTable(this));
+  }
+
+  public ConfigurationsTable getCongfigurationsTable() {
+    return getDbTable(ConfigurationsTable.class);
+  }
+
+  public CollectionsTable getCollectionsTable() {
+    return getDbTable(CollectionsTable.class);
+  }
+
+  public <T> T getDbTable(Class<T> dbTableClass) {
+    return (T) dbTables.get(dbTableClass);
+  }
+
+
   /** creates or upgrades the db tables */
   public Db initializeTables() {
     Integer dbSchemaVersion = getDbSchemaVersion();
@@ -91,67 +114,99 @@ public abstract class Db {
 
   /** returns null if the db schema table does not exist */
   protected Integer getDbSchemaVersion() {
-    try {
-      return dbi.inTransaction(new TransactionCallback<Integer>() {
-        @Override
-        public Integer inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
-          boolean configurationsExists = false;
-          ResultSet rs = handle
+    return tx(tx -> {
+        boolean configurationsExists = false;
+        try {
+          ResultSet rs = tx
                   .getConnection()
                   .getMetaData()
                   .getTables(null, null, "configurations", null);
           configurationsExists = rs.next();
+        } catch (Exception e) {
+          throw new RuntimeException("Couldn't get table metadata: "+e.getMessage(), e);
+        }
+        
+        if (configurationsExists) {
+          log.debug("Table configurations exists, checking dbversion");
+          String sqlSelectDbVersion = getDbTable(ConfigurationsTable.class).sqlSelectDbVersion();
+          String dbVersionString = tx.createQuery(sqlSelectDbVersion)
+            .execute()
+            .getFirstAsString();
           
-          if (configurationsExists) {
-            log.debug("Table configurations exists, checking dbversion");
-            String dbVersionString = handle.createQuery(configurationsQueryGetDbVersion())
-              .map(StringMapper.FIRST)
-              .first();
-            
-            if (dbVersionString!=null) {
-              log.debug("Configuration dbversion is "+dbVersionString);
-              try {
-                return Integer.parseInt(dbVersionString);
-              } catch (Exception e) {
-                log.debug("Configuration dbversion does not parsable as integer");
-              }
-            } else {
-              log.debug("Configuration dbversion does not exist");
+          if (dbVersionString!=null) {
+            log.debug("Configuration dbversion is "+dbVersionString);
+            try {
+              int dbVersion = Integer.parseInt(dbVersionString);
+              tx.setReturnValue(dbVersion);
+            } catch (Exception e) {
+              log.debug("Configuration dbversion does not parsable as integer");
             }
           } else {
-            log.debug("Table configurations does not exist");
+            log.debug("Configuration dbversion does not exist");
           }
-          return null;
+        } else {
+          log.debug("Table configurations does not exist");
         }
-      });
-    } catch (CallbackFailedException e) {
-      return null;
-    }
+      }
+    );
   }
 
   public void dropTables() {
-    dbi.inTransaction(new TransactionCallback<Void>() {
-      @Override
-      public Void inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
-        handle.createStatement(configurationsDropTable()).execute();
-        handle.createStatement(collectionsDropTable()).execute();
-        return null;
+    tx(tx -> {
+        for (DbTable dbTable: dbTables.values()) {
+          String dropSql = dbTable.sqlDrop();
+          tx.createUpdate(dropSql).execute();
+        }
       }
-    });
+    );
   }
 
   protected void createTables() {
-    dbi.inTransaction(new TransactionCallback<Void>() {
-      @Override
-      public Void inTransaction(Handle handle, TransactionStatus txStatus) throws Exception {
-        handle.createStatement(configurationsCreateTable()).execute();
-        handle.createStatement(collectionsCreateTable()).execute();
-        handle.createStatement(configurationsInsertDbVersion(Integer.toString(APP_SCHEMA_VERSION))).execute();
-        return null;
+    tx(tx -> {
+        for (DbTable dbTable: dbTables.values()) {
+          String createSql = dbTable.sqlCreate();
+          tx.createUpdate(createSql).execute();
+        }
+        String insertDbVersionSql = getDbTable(ConfigurationsTable.class)
+                .sqlInsertDbVersion(Integer.toString(APP_SCHEMA_VERSION));
+        tx.createUpdate(insertDbVersionSql).execute();
       }
-    });
+    );
   }
   
+  public <T> T tx(TxLogic txLogic) {
+    Connection connection = null;
+    Tx tx = null;
+    Exception exception = null;
+    try {
+      connection = dataSource.getConnection();
+      connection.setAutoCommit(false);
+      tx = new Tx(this, connection);
+      txLogic.execute(tx);
+    } catch (Exception e) {
+      exception = e;
+      tx.setRollbackOnly(e);
+    } 
+    if (tx!=null) {
+      tx.end();
+    }
+    if (connection!=null) {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        log.error("Tx connection close: "+e.getMessage(), e);
+      }
+    }
+    if (exception!=null) {
+      if (exception instanceof RuntimeException) {
+        throw (RuntimeException) exception;
+      } else {
+        throw new RuntimeException("Transaction failed: "+exception.getMessage(), exception);
+      }
+    }
+    return tx!=null ? (T) tx.getReturnValue() : null;
+  }
+
   protected void upgradeDbSchema(int dbSchemaVersion) {
     while (dbSchemaVersion<APP_SCHEMA_VERSION) {
       upgradeDbVersion(dbSchemaVersion+1);
@@ -161,16 +216,22 @@ public abstract class Db {
   
   protected abstract String getDriverClassName();
   protected abstract String getConnectionUrl(String server, Integer port, String databaseName);
-
-  protected abstract String configurationsDropTable();
-  protected abstract String configurationsCreateTable();
-  protected abstract String configurationsQueryGetDbVersion();
-  protected abstract String configurationsInsertDbVersion(String appSchemaVersion);
   /** upgrades the database from the previous version to the given dbVersion */
   protected abstract void upgradeDbVersion(int dbVersion);
 
-  protected abstract String collectionsDropTable();
-  protected abstract String collectionsCreateTable();
+  protected String getDropSqlTemplate() {
+    return "DROP TABLE %s";
+  }
+
+  public String typeVarcharId() {
+    return "VARCHAR(1024)";
+  }
   
-  
+  public String typeVarcharName() {
+    return "VARCHAR(4096)";
+  }
+
+  public String nextId() {
+    return idGenerator.nextId();
+  }
 }

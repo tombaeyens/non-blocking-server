@@ -52,6 +52,10 @@ public class Response {
     return status(HttpResponseStatus.BAD_REQUEST);
   }
 
+  public Response statusInternalServerError() {
+    return status(HttpResponseStatus.INTERNAL_SERVER_ERROR);
+  }
+
   public Response status(HttpResponseStatus status) {
     this.status = status;
     return this;
@@ -72,6 +76,17 @@ public class Response {
     headers.add(name, value);
     return this;
   }
+
+  public Response headerContentTypeApplicationJson() {
+    headerContentType("application/json");
+    return this;
+  }
+
+  public Response headerContentType(String contentType) {
+    header(HttpHeaders.Names.CONTENT_TYPE, contentType);
+    return this;
+  }
+
 
   public HttpResponse getHttpResponse() {
     autoAddContentLengthHeader();

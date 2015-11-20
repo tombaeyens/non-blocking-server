@@ -9,20 +9,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.requests;
-
-import be.tombaeyens.cbe.http.framework.RequestHandler;
-
+package org.apache.http.client.fluent;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Oops extends RequestHandler {
+public class BadStatusException extends RuntimeException {
 
-  public void handle() {
-    response
-      .content("oops")
-      .statusNotFound();
+  private static final long serialVersionUID = 1L;
+
+  public BadStatusException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

@@ -1,6 +1,4 @@
-/* Copyright (c) 2014, Effektif GmbH.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
+/* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -11,21 +9,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.router;
+package be.tombaeyens.cbe.db;
 
-import io.netty.handler.codec.http.router.Router;
-import be.tombaeyens.cbe.http.framework.RequestHandler;
-import be.tombaeyens.cbe.http.requests.CollectionPost;
-import be.tombaeyens.cbe.http.requests.Oops;
+import java.util.UUID;
 
 
 /**
  * @author Tom Baeyens
  */
-public class CbeRouter extends Router<Class< ? extends RequestHandler>> {
+public class IdGenerator {
 
-  public CbeRouter() {
-    POST("/collections", CollectionPost.class);
-    notFound(Oops.class);
+  public String nextId() {
+    return UUID.randomUUID().toString();
   }
 }

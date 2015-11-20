@@ -9,26 +9,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
-
-import be.tombaeyens.cbe.db.Db;
-
-
+package be.tombaeyens.cbe.db;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class AbstractRequestHandler implements RequestHandler, ServiceConsumer {
+public interface TxLogic {
 
-  protected ServiceLocator serviceLocator;
-
-  @Override
-  public void setServiceLocator(ServiceLocator serviceLocator) {
-    this.serviceLocator = serviceLocator;
-  }
-
-  public Db getDb() {
-    return serviceLocator.getDb();
-  }
+  void execute(Tx tx);
 }

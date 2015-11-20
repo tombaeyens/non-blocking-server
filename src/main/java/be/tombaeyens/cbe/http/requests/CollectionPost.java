@@ -9,40 +9,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
+package be.tombaeyens.cbe.http.requests;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.postgres.PostgreSqlBuilder;
+import be.tombaeyens.cbe.db.tables.Collection;
+import be.tombaeyens.cbe.http.framework.RequestHandler;
 
 
 /**
  * @author Tom Baeyens
  */
-public class ServiceLocator {
-
-  protected Db db;
-  protected Gson gson;
+public class CollectionPost extends RequestHandler {
   
-  public ServiceLocator() {
-    this.db = new PostgreSqlBuilder()
-      .server("localhost")
-      .databaseName("cbe")
-      .username("test")
-      .password("test")
-      .build();
+  public static class RequestBody {
+    String name;
+  }
+
+  @Override
+  public void handle() {
+    RequestBody requestBody = readRequestBodyJson(RequestBody.class);
+
+    Collection collection = db.tx(tx -> {
+      db.getCollectionsTable()
+        .insertCollection(tx, requestBody.name);
+    });
     
-    this.gson = new GsonBuilder()
-      .create();
-  }
-
-  public Db getDb() {
-    return this.db;
-  }
-
-  public Gson getGson() {
-    return gson;
+    writeResponseBodyJson(collection);
   }
 }

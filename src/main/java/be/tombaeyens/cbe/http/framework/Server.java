@@ -23,18 +23,17 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.router.Router;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.DbBuilder;
 import be.tombaeyens.cbe.http.router.CbeRouter;
 
 public class Server {
 
-  private static InternalLogger log = InternalLoggerFactory.getInstance(ServerHandler.class);
+  private static InternalLogger log = InternalLoggerFactory.getInstance(ServerChannelHandler.class);
   
   protected int port = 8000;
-  NioEventLoopGroup bossGroup;
-  NioEventLoopGroup workerGroup;
-  Channel channel;
+  protected NioEventLoopGroup bossGroup;
+  protected NioEventLoopGroup workerGroup;
+  protected Router<Class< ? extends RequestHandler>> router;
+  protected Channel channel;
   
   public Server port(int port) {
     this.port = port;
@@ -46,7 +45,7 @@ public class Server {
     workerGroup = new NioEventLoopGroup();
 
     try {
-      Router<Class<? extends RequestHandler>> router = new CbeRouter();
+      router = new CbeRouter();
 
       ServerBootstrap serverBootstrap = new ServerBootstrap()
         .group(bossGroup, workerGroup);
@@ -55,7 +54,7 @@ public class Server {
         .childOption(ChannelOption.SO_KEEPALIVE, java.lang.Boolean.TRUE)
         .channel(NioServerSocketChannel.class)
         // .handler(new LoggingHandler(LogLevel.INFO))
-        .childHandler(new ServerChannelInitializer(router));
+        .childHandler(createServerChannelInitializer());
 
       channel = serverBootstrap
         .bind("localhost", port)
@@ -64,13 +63,15 @@ public class Server {
       
       log.debug("Server started: http://127.0.0.1:" + port + "/\n" + router);
 
-      // channel.closeFuture().sync();
-      
     } catch (Throwable t) {
       t.printStackTrace();
     }
     
     return this;
+  }
+
+  protected ServerChannelInitializer createServerChannelInitializer() {
+    return new ServerChannelInitializer(router);
   }
   
   public void waitForShutdown() {
@@ -86,5 +87,9 @@ public class Server {
   public void shutdown() {
     bossGroup.shutdownGracefully();
     workerGroup.shutdownGracefully();
+  }
+
+  public int getPort() {
+    return port;
   }
 }

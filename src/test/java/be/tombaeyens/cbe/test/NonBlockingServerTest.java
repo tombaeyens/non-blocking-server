@@ -12,7 +12,6 @@
 package be.tombaeyens.cbe.test;
 
 import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,32 +30,38 @@ public class NonBlockingServerTest {
   @BeforeClass
   public static void startServer() {
     if (server==null) {
-      server = new Server()
+      server = new TestServer()
         .startup();
     }
   }
 
   @Test
   public void testOne() {
-    POST("articles/9sd89sd8f")
-      .bodyString("klsjdflksjdklsdjf", ContentType.TEXT_PLAIN)
+    String responseString = POST("collections")
+      .bodyJson("{ \"name\" : \"invoices\" }")
       .execute()
+      .assertStatusCreated()
       .returnContent()
       .asString();
   }
   
-  public static Request GET(final String path) {
-    return configure(Request.Get("http://localhost:8000/"+path));
+  public Request GET(final String path) {
+    return configure(Request.Get("http://localhost:"+server.getPort()+"/"+path));
   }
   
-  public static Request POST(final String path) {
-    return Request.Post("http://localhost:8000/"+path);
+  public Request POST(final String path) {
+    return configure(Request.Post("http://localhost:"+server.getPort()+"/"+path));
+  }
+
+  public Request PUT(final String path) {
+    return configure(Request.Put("http://localhost:"+server.getPort()+"/"+path));
   }
 
   /** configurations applied to all requests */
-  private static Request configure(Request request) {
+  private Request configure(Request request) {
     // request.socketTimeout(2000);  // default is -1
     // request.connectTimeout(2000); // default is -1
+    request.setTestServer((TestServer)server);
     return request;
   }
 }

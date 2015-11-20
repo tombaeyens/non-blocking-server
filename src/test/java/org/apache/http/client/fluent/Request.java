@@ -47,7 +47,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.Configurable;
@@ -64,6 +63,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
+import be.tombaeyens.cbe.test.TestServer;
+
 public class Request {
 
     public static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
@@ -75,6 +76,7 @@ public class Request {
     private Integer socketTmeout;
     private Integer connectTimeout;
     private HttpHost proxy;
+    private TestServer testServer;
 
     private SimpleDateFormat dateFormatter;
 
@@ -178,7 +180,7 @@ public class Request {
     }
 
     public Response execute() {
-        return new Response(internalExecute(Executor.CLIENT, null));
+        return new Response(internalExecute(Executor.CLIENT, null), this);
     }
 
     public void abort() throws UnsupportedOperationException {
@@ -379,6 +381,11 @@ public class Request {
         return body(new InternalByteArrayEntity(raw, contentType));
     }
 
+    public Request bodyJson(final String json) {
+        return bodyString(json, ContentType.APPLICATION_JSON);
+    }
+
+
     public Request bodyFile(final File file, final ContentType contentType) {
         return body(new InternalFileEntity(file, contentType));
     }
@@ -418,4 +425,11 @@ public class Request {
         return this.request.getRequestLine().toString();
     }
 
+    public TestServer getTestServer() {
+      return testServer;
+    }
+
+    public void setTestServer(TestServer testServer) {
+      this.testServer = testServer;
+    }
 }

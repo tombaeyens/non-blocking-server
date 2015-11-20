@@ -22,7 +22,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import be.tombaeyens.cbe.http.framework.Server;
-import be.tombaeyens.cbe.http.framework.ServerHandler;
+import be.tombaeyens.cbe.http.framework.ServerChannelHandler;
 import be.tombaeyens.cbe.util.log.SimpleSlf4jConfiguration;
 import be.tombaeyens.cbe.util.log.SimpleSlf4jILoggerFactory.Level;
 
@@ -38,7 +38,7 @@ public class ServerMain {
       ;
   }
   
-  private static InternalLogger log = InternalLoggerFactory.getInstance(ServerHandler.class);
+  private static InternalLogger log = InternalLoggerFactory.getInstance(ServerChannelHandler.class);
 
   public static void main(String[] args) throws Exception {
     SimpleSlf4jConfiguration.initialize()

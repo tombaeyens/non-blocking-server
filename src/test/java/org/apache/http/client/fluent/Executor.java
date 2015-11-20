@@ -259,7 +259,7 @@ public class Executor {
         if (this.cookieStore != null) {
             localContext.setAttribute(HttpClientContext.COOKIE_STORE, this.cookieStore);
         }
-        return new Response(request.internalExecute(this.httpclient, localContext));
+        return new Response(request.internalExecute(this.httpclient, localContext), request);
     }
 
     /**

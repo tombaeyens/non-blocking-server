@@ -9,15 +9,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.db;
+package be.tombaeyens.cbe.db.postgres;
 
-import org.skife.jdbi.v2.Handle;
+import be.tombaeyens.cbe.db.Db;
+import be.tombaeyens.cbe.db.DbBuilder;
 
 
 /**
  * @author Tom Baeyens
  */
-public interface DbUpgrade {
+public class PostgreSqlBuilder extends DbBuilder {
 
-  public void execute(Handle handle);
+  @Override
+  public Db build() {
+    return new PostgreSqlDb(this);
+  }
+
 }
