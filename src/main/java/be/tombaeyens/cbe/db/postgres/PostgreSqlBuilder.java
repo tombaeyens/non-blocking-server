@@ -21,7 +21,7 @@ import be.tombaeyens.cbe.db.DbBuilder;
 public class PostgreSqlBuilder extends DbBuilder {
 
   @Override
-  public Db build() {
+  public Db buildDb() {
     return new PostgreSqlDb(this);
   }
 

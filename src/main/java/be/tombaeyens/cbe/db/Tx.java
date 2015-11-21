@@ -31,7 +31,7 @@ public class Tx {
   protected Db db;
   protected Connection connection;
   protected boolean isRollbackOnly = false;
-  protected Object returnValue;
+  protected Object result;
   protected Exception rollbackReason;
 
   public Tx(Db db, Connection connection) {
@@ -52,11 +52,15 @@ public class Tx {
     return this.connection;
   }
 
-  public Object getReturnValue() {
-    return this.returnValue;
+  public Object getResult() {
+    return this.result;
   }
-  public void setReturnValue(Object returnValue) {
-    this.returnValue = returnValue;
+  public void setResult(Object result) {
+    this.result = result;
+  }
+  public Tx result(Object result) {
+    this.result = result;
+    return this;
   }
 
   public void setRollbackOnly() {

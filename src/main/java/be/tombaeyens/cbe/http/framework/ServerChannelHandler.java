@@ -32,21 +32,24 @@ import io.netty.handler.codec.http.router.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.tombaeyens.cbe.db.Db;
+
 @ChannelHandler.Sharable
 public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
   
   private static final Logger log = LoggerFactory.getLogger(ServerChannelHandler.class);
   
-  private final Router<Class< ? extends RequestHandler>> router;
   private final ServiceLocator serviceLocator;
-
-  public ServerChannelHandler(Router<Class< ? extends RequestHandler>> router, ServiceLocator serviceLocator) {
-    this.router = router;
-    this.serviceLocator = serviceLocator;
-  }
-
+  private final Router<Class< ? extends RequestHandler>> router;
+  private final Db db;
   private FullHttpRequest fullHttpRequest;
   private RouteResult<Class< ? extends RequestHandler>> route;
+
+  public ServerChannelHandler(Server server) {
+    this.serviceLocator = server.getServiceLocator();
+    this.router = serviceLocator.getRouter();
+    this.db = serviceLocator.getDb();
+  }
 
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -69,13 +72,13 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
 
       this.route = router.route(fullHttpRequest.getMethod(), fullHttpRequest.getUri());
       
-      Request request = new Request(fullHttpRequest, route);
-      Response response = new Response(ctx);
+      Request request = new Request(fullHttpRequest, route, serviceLocator);
+      Response response = new Response(ctx, serviceLocator);
       RequestHandler requestHandler = instantiateRequestHandler();
       requestHandler.request = request;
       requestHandler.response = response;
       requestHandler.serviceLocator = serviceLocator;
-      requestHandler.db = serviceLocator.getDb();
+      requestHandler.db = db;
       
       try {
         requestHandler.handle();

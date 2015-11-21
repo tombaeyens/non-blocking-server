@@ -11,10 +11,15 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.test;
 
+import static org.junit.Assert.*;
+
 import org.apache.http.client.fluent.Request;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import be.tombaeyens.cbe.db.Db;
+import be.tombaeyens.cbe.db.tables.Collection;
 import be.tombaeyens.cbe.http.framework.Server;
 
 
@@ -34,15 +39,23 @@ public class NonBlockingServerTest {
         .startup();
     }
   }
+  
+  @Before
+  public void setUp() {
+    Db db = server.getServiceLocator().getDb();
+    db.dropTables();
+    db.initializeTables();
+  }
 
   @Test
   public void testOne() {
-    String responseString = POST("collections")
+    Collection collection = POST("collections")
       .bodyJson("{ \"name\" : \"invoices\" }")
       .execute()
       .assertStatusCreated()
-      .returnContent()
-      .asString();
+      .body(Collection.class);
+    assertNotNull(collection.getId());
+    assertEquals("invoices", collection.getName());
   }
   
   public Request GET(final String path) {

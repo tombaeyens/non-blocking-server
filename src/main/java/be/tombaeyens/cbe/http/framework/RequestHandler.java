@@ -26,15 +26,4 @@ public abstract class RequestHandler {
 
   public abstract void handle();
 
-  public <T> T readRequestBodyJson(Class<T> type) {
-    String content = request.getContentStringUtf8();
-    return serviceLocator.getGson().fromJson(content, type);
-  }
-  
-  public void writeResponseBodyJson(Object o) {
-    String json = serviceLocator.getGson().toJson(o);
-    response.headerContentTypeApplicationJson();
-    response.content(json);
-  }
-
 }

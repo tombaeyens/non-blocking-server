@@ -11,10 +11,7 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.test;
 
-import io.netty.handler.codec.http.router.Router;
-import be.tombaeyens.cbe.http.framework.RequestHandler;
 import be.tombaeyens.cbe.http.framework.ServerChannelHandler;
-import be.tombaeyens.cbe.http.framework.ServiceLocator;
 
 
 /**
@@ -24,8 +21,8 @@ public class TestServerChannelHandler extends ServerChannelHandler {
 
   TestServerChannelInitializer testServerChannelInitializer;
   
-  public TestServerChannelHandler(Router<Class< ? extends RequestHandler>> router, ServiceLocator serviceLocator, TestServerChannelInitializer testServerChannelInitializer) {
-    super(router, serviceLocator);
+  public TestServerChannelHandler(TestServer testServer, TestServerChannelInitializer testServerChannelInitializer) {
+    super(testServer);
     this.testServerChannelInitializer = testServerChannelInitializer;
   }
 

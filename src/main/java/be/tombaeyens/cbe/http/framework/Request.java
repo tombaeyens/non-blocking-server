@@ -19,18 +19,25 @@ import io.netty.util.CharsetUtil;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author Tom Baeyens
  */
 public class Request {
+  
+  private static final Logger log = LoggerFactory.getLogger(Request.class);
 
   FullHttpRequest fullHttpRequest;
   RouteResult<?> route;
+  ServiceLocator serviceLocator;
 
-  public Request(FullHttpRequest fullHttpRequest, RouteResult<?> route) {
+  public Request(FullHttpRequest fullHttpRequest, RouteResult<?> route, ServiceLocator serviceLocator) {
     this.fullHttpRequest = fullHttpRequest;
     this.route = route;
+    this.serviceLocator = serviceLocator;
   }
 
   public String getParameter(String name) {
@@ -56,15 +63,22 @@ public class Request {
   public String getContentStringUtf8() {
     return getContentString(CharsetUtil.UTF_8);
   }
-
+  
+  public <T> T getContent(Class<T> type) {
+    String content = getContentStringUtf8();
+    return serviceLocator.getGson().fromJson(content, type);
+  }
+  
   public boolean isDecodingFailed() {
     return fullHttpRequest.getDecoderResult().isFailure();
   }
 
   public String getContentString(Charset charset) {
-    return fullHttpRequest.content().toString(charset);
+    String content = fullHttpRequest.content().toString(charset);
+    log.debug(">>> "+content);
+    return content;
   }
-
+  
   public String getHeader(String name) {
     HttpHeaders headers = fullHttpRequest.headers();
     return headers.get(name);

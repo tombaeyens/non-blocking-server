@@ -34,7 +34,16 @@ public class Server {
   protected NioEventLoopGroup workerGroup;
   protected Router<Class< ? extends RequestHandler>> router;
   protected Channel channel;
-  
+  protected ServiceLocator serviceLocator;
+
+  public Server() {
+    this(new ServerBuilder());
+  }
+
+  public Server(ServerBuilder serverBuilder) {
+    this.serviceLocator = serverBuilder.buildServiceLocator();
+  }
+
   public Server port(int port) {
     this.port = port;
     return this;
@@ -71,7 +80,7 @@ public class Server {
   }
 
   protected ServerChannelInitializer createServerChannelInitializer() {
-    return new ServerChannelInitializer(router);
+    return new ServerChannelInitializer(this);
   }
   
   public void waitForShutdown() {
@@ -91,5 +100,9 @@ public class Server {
 
   public int getPort() {
     return port;
+  }
+
+  public ServiceLocator getServiceLocator() {
+    return this.serviceLocator;
   }
 }

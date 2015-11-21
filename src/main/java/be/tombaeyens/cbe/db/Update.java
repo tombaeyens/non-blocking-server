@@ -56,4 +56,9 @@ public class Update extends Operation {
       throw new RuntimeException("Getting generated key "+index+" failed: "+e.getMessage(), e);
     }
   }
+
+  @Override
+  protected Logger getLog() {
+    return log;
+  }
 }

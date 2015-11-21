@@ -14,16 +14,21 @@ package be.tombaeyens.cbe.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author Tom Baeyens
  */
 public class Query extends Operation {
+  
+  private static final Logger log = LoggerFactory.getLogger(Query.class);
 
   public Query(Tx tx, String sql) {
     super(tx, sql);
   }
-
+  
   public QueryResult execute() {
     try {
       ResultSet executeQuery = preparedStatement.executeQuery();
@@ -33,4 +38,8 @@ public class Query extends Operation {
     }
   }
 
+  @Override
+  protected Logger getLog() {
+    return log;
+  }
 }

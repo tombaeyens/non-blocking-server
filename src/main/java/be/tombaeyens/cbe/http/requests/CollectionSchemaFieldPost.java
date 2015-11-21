@@ -11,6 +11,7 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.requests;
 
+import graphql.schema.GraphQLType;
 import be.tombaeyens.cbe.db.tables.Collection;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
 
@@ -18,10 +19,11 @@ import be.tombaeyens.cbe.http.framework.RequestHandler;
 /**
  * @author Tom Baeyens
  */
-public class CollectionPost extends RequestHandler {
+public class CollectionSchemaFieldPost extends RequestHandler {
   
   public static class RequestBody {
     String name;
+    GraphQLType type;
   }
 
   @Override
@@ -29,8 +31,8 @@ public class CollectionPost extends RequestHandler {
     RequestBody requestBody = request.getContent(RequestBody.class);
 
     Collection collection = db.tx(tx -> {
-      tx.result(db.getCollectionsTable()
-        .insertCollection(tx, requestBody.name));
+      tx.result( db.getCollectionsTable()
+        .insertCollection(tx, requestBody.name) );
     });
     
     response.contentJson(collection);

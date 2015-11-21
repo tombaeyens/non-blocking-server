@@ -24,20 +24,27 @@ import io.netty.util.CharsetUtil;
 
 import java.nio.charset.Charset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author Tom Baeyens
  */
 public class Response {
 
-  ChannelHandlerContext channelHandlerContext;
-  HttpVersion httpVersion = HttpVersion.HTTP_1_1;
-  ByteBuf byteBuf = Unpooled.buffer();
-  HttpResponseStatus status = HttpResponseStatus.OK;
-  HttpHeaders headers = new DefaultHttpHeaders();
+  private static final Logger log = LoggerFactory.getLogger(Response.class); 
+  
+  protected ChannelHandlerContext channelHandlerContext;
+  protected HttpVersion httpVersion = HttpVersion.HTTP_1_1;
+  protected ByteBuf byteBuf = Unpooled.buffer();
+  protected HttpResponseStatus status = HttpResponseStatus.OK;
+  protected HttpHeaders headers = new DefaultHttpHeaders();
+  protected ServiceLocator serviceLocator;
 
-  public Response(ChannelHandlerContext channelHandlerContext) {
+  public Response(ChannelHandlerContext channelHandlerContext, ServiceLocator serviceLocator) {
     this.channelHandlerContext = channelHandlerContext;
+    this.serviceLocator =serviceLocator;
   }
 
   public Response statusOk() {
@@ -55,6 +62,10 @@ public class Response {
   public Response statusInternalServerError() {
     return status(HttpResponseStatus.INTERNAL_SERVER_ERROR);
   }
+  
+  public Response statusCreated() {
+    return status(HttpResponseStatus.CREATED);
+  }
 
   public Response status(HttpResponseStatus status) {
     this.status = status;
@@ -67,11 +78,19 @@ public class Response {
 
   public Response content(String content, Charset charset) {
     if (content!=null) {
+      log.debug("<<< "+content);
       byteBuf.writeBytes(content.getBytes(charset));
     }
     return this;
   }
-  
+
+  public Response contentJson(Object o) {
+    String json = serviceLocator.getGson().toJson(o);
+    headerContentTypeApplicationJson();
+    content(json);
+    return this;
+  }
+
   public Response header(String name, String value) {
     headers.add(name, value);
     return this;
@@ -86,7 +105,6 @@ public class Response {
     header(HttpHeaders.Names.CONTENT_TYPE, contentType);
     return this;
   }
-
 
   public HttpResponse getHttpResponse() {
     autoAddContentLengthHeader();

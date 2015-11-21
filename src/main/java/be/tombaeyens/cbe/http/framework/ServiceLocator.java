@@ -11,11 +11,10 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.framework;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
+import io.netty.handler.codec.http.router.Router;
 import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.postgres.PostgreSqlBuilder;
+
+import com.google.gson.Gson;
 
 
 /**
@@ -25,24 +24,38 @@ public class ServiceLocator {
 
   protected Db db;
   protected Gson gson;
-  
-  public ServiceLocator() {
-    this.db = new PostgreSqlBuilder()
-      .server("localhost")
-      .databaseName("cbe")
-      .username("test")
-      .password("test")
-      .build();
-    
-    this.gson = new GsonBuilder()
-      .create();
-  }
+  protected Router<Class<? extends RequestHandler>> router;
 
   public Db getDb() {
     return this.db;
   }
+  public void setDb(Db db) {
+    this.db = db;
+  }
+  public ServiceLocator db(Db db) {
+    this.db = db;
+    return this;
+  }
 
   public Gson getGson() {
-    return gson;
+    return this.gson;
+  }
+  public void setGson(Gson gson) {
+    this.gson = gson;
+  }
+  public ServiceLocator gson(Gson gson) {
+    this.gson = gson;
+    return this;
+  }
+
+  public Router<Class<? extends RequestHandler>> getRouter() {
+    return this.router;
+  }
+  public void setRouter(Router<Class<? extends RequestHandler>> router) {
+    this.router = router;
+  }
+  public ServiceLocator router(Router<Class<? extends RequestHandler>> router) {
+    this.router = router;
+    return this;
   }
 }

@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -41,8 +42,12 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.util.EntityUtils;
 
+import be.tombaeyens.cbe.http.framework.ServiceLocator;
+import be.tombaeyens.cbe.test.TestServer;
+
 public class Response {
 
+    private static final Charset UTF8 = Charset.forName("UTF-8");
     protected Request request;
     protected final HttpResponse response;
     protected boolean consumed;
@@ -51,6 +56,14 @@ public class Response {
         super();
         this.request = request;
         this.response = response;
+    }
+    
+    protected ServiceLocator getServiceLocator() {
+      return getTestServer().getServiceLocator();
+    }
+
+    protected TestServer getTestServer() {
+      return request.getTestServer();
     }
 
     private void assertNotConsumed() {
@@ -118,6 +131,15 @@ public class Response {
         }
     }
     
+    public String bodyStringUtf8() {
+      return returnContent().asString(UTF8);
+    }
+    
+    public <T> T body(Class<T> type) {
+      String bodyString = bodyStringUtf8();
+      return getServiceLocator().getGson().fromJson(bodyString, type);
+    }
+    
     public Response assertStatusCreated() {
       return assertStatus(HttpStatus.SC_CREATED);
     }
@@ -125,10 +147,10 @@ public class Response {
     public Response assertStatus(int expectedStatusCode) {
       int responseStatusCode = response.getStatusLine().getStatusCode();
       if (responseStatusCode!=expectedStatusCode) {
-        Throwable serverCause = request.getTestServer().getLatestException();
+        Throwable serverCause = getTestServer().getLatestException();
         throw new BadStatusException("Expected "+expectedStatusCode+", but was "+responseStatusCode, serverCause);
       }
-      return null;
+      return this;
     }
 
     public void saveContent(final File file) throws IOException {

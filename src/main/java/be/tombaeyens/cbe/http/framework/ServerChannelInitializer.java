@@ -19,22 +19,19 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.BadClientSilencer;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.router.Router;
 
 
 /** Initializes each channel.  
- * One object for the whole object, initialized in the {@link Server}.
+ * One object for the whole application, initialized in the {@link Server}.
  * 
  * @author Tom Baeyens
  */
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
   
-  protected Router<Class<? extends RequestHandler>> router;
-  protected ServiceLocator serviceLocator;
+  protected Server server;
   
-  public ServerChannelInitializer(Router<Class< ? extends RequestHandler>> router) {
-    this.router = router;
-    this.serviceLocator = new ServiceLocator();
+  public ServerChannelInitializer(Server server) {
+    this.server = server;
   }
 
   @Override
@@ -47,6 +44,6 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
   }
 
   protected ServerChannelHandler createServerChannelHandler() {
-    return new ServerChannelHandler(router, serviceLocator);
+    return new ServerChannelHandler(server);
   }
 }

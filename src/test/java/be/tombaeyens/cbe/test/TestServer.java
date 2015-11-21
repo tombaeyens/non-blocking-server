@@ -12,6 +12,7 @@
 package be.tombaeyens.cbe.test;
 
 import be.tombaeyens.cbe.http.framework.Server;
+import be.tombaeyens.cbe.http.framework.ServerBuilder;
 import be.tombaeyens.cbe.http.framework.ServerChannelInitializer;
 
 
@@ -22,9 +23,19 @@ public class TestServer extends Server {
   
   protected Exception latestException;
 
+  public TestServer() {
+    super(createTestServerBuilder());
+  }
+  
+  private static ServerBuilder createTestServerBuilder() {
+    ServerBuilder testServerBuilder = new ServerBuilder();
+    testServerBuilder.getDbBuilder().idGenerator(new TestIdGenerator());
+    return testServerBuilder;
+  }
+
   @Override
   protected ServerChannelInitializer createServerChannelInitializer() {
-    return new TestServerChannelInitializer(router, this);
+    return new TestServerChannelInitializer(this);
   }
 
   public Throwable getLatestException() {

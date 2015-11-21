@@ -137,7 +137,7 @@ public abstract class Db {
             log.debug("Configuration dbversion is "+dbVersionString);
             try {
               int dbVersion = Integer.parseInt(dbVersionString);
-              tx.setReturnValue(dbVersion);
+              tx.setResult(dbVersion);
             } catch (Exception e) {
               log.debug("Configuration dbversion does not parsable as integer");
             }
@@ -204,7 +204,7 @@ public abstract class Db {
         throw new RuntimeException("Transaction failed: "+exception.getMessage(), exception);
       }
     }
-    return tx!=null ? (T) tx.getReturnValue() : null;
+    return tx!=null ? (T) tx.getResult() : null;
   }
 
   protected void upgradeDbSchema(int dbSchemaVersion) {

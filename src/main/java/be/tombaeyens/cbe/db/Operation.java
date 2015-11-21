@@ -18,12 +18,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+
 
 /**
  * @author Tom Baeyens
  */
-public class Operation {
-
+public abstract class Operation {
+  
   protected Tx tx;
   protected String sql;
   protected Map<String, Integer> parameterIndexes;
@@ -36,6 +38,8 @@ public class Operation {
     this.preparedStatement = createPreparedStatement(tx, parsedSql);
   }
 
+  protected abstract Logger getLog();
+
   protected String parseParameters(String sql) {
     int colonIndex = sql.indexOf(':');
     if (colonIndex==-1) {
@@ -43,7 +47,7 @@ public class Operation {
     }
     this.parameterIndexes = new HashMap<>();
     StringBuilder parsedSql = new StringBuilder();
-    Pattern pattern = Pattern.compile(":[a-zA-Z0-9]");
+    Pattern pattern = Pattern.compile(":[a-zA-Z0-9]+");
     Matcher matcher = pattern.matcher(sql);
     int start = 0;
     int index = 1;
@@ -51,8 +55,10 @@ public class Operation {
       String name = matcher.group().substring(1);
       parameterIndexes.put(name, index);
       index++;
-      parsedSql.append(sql.substring(start, matcher.start()));
-      start = matcher.end()+1;
+      String sqlPiece = sql.substring(start, matcher.start());
+      parsedSql.append(sqlPiece);
+      parsedSql.append('?');
+      start = matcher.end();
     }
     if (start<sql.length()) {
       parsedSql.append(sql.substring(start, sql.length()));
@@ -62,6 +68,7 @@ public class Operation {
 
   public PreparedStatement createPreparedStatement(Tx tx, String sql) {
     try {
+      // getLog().debug(tx.toString()+"Creating prepared statement: "+sql);
       return tx.getConnection().prepareStatement(sql);
     } catch (SQLException e) {
       throw new RuntimeException(getClass().getSimpleName()+" creation failed: "+e.getMessage(), e);
@@ -72,7 +79,7 @@ public class Operation {
     Integer index = null;
     try {
       index = getIndex(parameterName);
-      sql = sql.replace(":"+parameterName, "\""+value+"\"");
+      sql = sql.replace(":"+parameterName, "'"+value+"'");
       preparedStatement.setString(index, value);
       return this;
     } catch (SQLException e) {

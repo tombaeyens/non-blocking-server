@@ -18,15 +18,15 @@ package be.tombaeyens.cbe.db;
  */
 public abstract class DbBuilder {
 
-  protected String server;
+  protected String server = "localhost";
   protected Integer port;
-  protected String databaseName;
+  protected String databaseName = "cbe";
   protected String connectionUrl;
   protected String username;
   protected String password;
   protected IdGenerator idGenerator = new IdGenerator();
   
-  public abstract Db build();
+  public abstract Db buildDb();
   
   public String getServer() {
     return this.server;
