@@ -9,25 +9,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
+package be.tombaeyens.cbe.test.framework;
 
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.TxLogic;
+import be.tombaeyens.cbe.db.IdGenerator;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RequestHandler {
+public class TestIdGenerator extends IdGenerator {
+  
+  static long nextId = 1;
 
-  protected Request request;
-  protected Response response;
-  protected ServiceLocator serviceLocator;
-  protected Db db;
-
-  public abstract void handle();
-
-  public <T> T tx(TxLogic txLogic) {
-    return db.tx(txLogic);
+  @Override
+  public synchronized String nextId() {
+    return Long.toString(nextId++);
   }
 }

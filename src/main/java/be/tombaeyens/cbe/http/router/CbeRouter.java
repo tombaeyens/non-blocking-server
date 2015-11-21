@@ -13,7 +13,15 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.router;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import io.netty.handler.codec.http.router.Router;
+import be.tombaeyens.cbe.http.framework.Get;
+import be.tombaeyens.cbe.http.framework.Gets;
+import be.tombaeyens.cbe.http.framework.Post;
+import be.tombaeyens.cbe.http.framework.Posts;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
 import be.tombaeyens.cbe.http.requests.CollectionPost;
 import be.tombaeyens.cbe.http.requests.Oops;
@@ -25,7 +33,35 @@ import be.tombaeyens.cbe.http.requests.Oops;
 public class CbeRouter extends Router<Class< ? extends RequestHandler>> {
 
   public CbeRouter() {
-    POST("/collections", CollectionPost.class);
+    register(CollectionPost.class);
     notFound(Oops.class);
+  }
+
+  private void register(Class< ? extends RequestHandler> clazz) {
+    List<Post> posts = new ArrayList<>();
+    Posts postsAnnotation = clazz.getDeclaredAnnotation(Posts.class);
+    if (postsAnnotation!=null) {
+      posts.addAll(Arrays.asList(postsAnnotation.value()));
+    }
+    Post postAnnotation = clazz.getDeclaredAnnotation(Post.class);
+    if (postAnnotation!=null) {
+      posts.add(postAnnotation);
+    }
+    for (Post post: posts) {
+      POST(post.value(), clazz);
+    }
+    
+    List<Get> gets = new ArrayList<>();
+    Gets getsAnnotation = clazz.getDeclaredAnnotation(Gets.class);
+    if (getsAnnotation!=null) {
+      gets.addAll(Arrays.asList(getsAnnotation.value()));
+    }
+    Get getAnnotation = clazz.getDeclaredAnnotation(Get.class);
+    if (getAnnotation!=null) {
+      gets.add(getAnnotation);
+    }
+    for (Get get: gets) {
+      GET(get.value(), clazz);
+    }
   }
 }

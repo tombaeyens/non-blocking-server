@@ -9,34 +9,36 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.test;
-
-import static org.junit.Assert.*;
+package be.tombaeyens.cbe.test.framework;
 
 import org.apache.http.client.fluent.Request;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.tables.Collection;
 import be.tombaeyens.cbe.http.framework.Server;
+import be.tombaeyens.cbe.test.json.A;
+import be.tombaeyens.cbe.test.json.O;
+
+import com.google.gson.Gson;
 
 
 /**
  * @author Tom Baeyens
  */
-public class NonBlockingServerTest {
+public class AbstractTest {
   
   static { TestLogConfiguration.initialize(); }
   
   public static Server server;
+  public static Gson gson; 
   
   @BeforeClass
   public static void startServer() {
     if (server==null) {
       server = new TestServer()
         .startup();
+      gson = server.getServiceLocator().getGson();
     }
   }
   
@@ -47,17 +49,6 @@ public class NonBlockingServerTest {
     db.initializeTables();
   }
 
-  @Test
-  public void testOne() {
-    Collection collection = POST("collections")
-      .bodyJson("{ \"name\" : \"invoices\" }")
-      .execute()
-      .assertStatusCreated()
-      .body(Collection.class);
-    assertNotNull(collection.getId());
-    assertEquals("invoices", collection.getName());
-  }
-  
   public Request GET(final String path) {
     return configure(Request.Get("http://localhost:"+server.getPort()+"/"+path));
   }
@@ -76,5 +67,21 @@ public class NonBlockingServerTest {
     // request.connectTimeout(2000); // default is -1
     request.setTestServer((TestServer)server);
     return request;
+  }
+  
+  public static O o() {
+    return new O(gson); 
+  }
+
+  public static O o(String propertyName, Object value) {
+    return new O(gson).a(propertyName, value); 
+  }
+
+  public static A a(Object value) {
+    return new A(gson).a(value); 
+  }
+
+  public static A a() {
+    return new A(gson); 
   }
 }

@@ -83,7 +83,11 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
       try {
         requestHandler.handle();
       } catch (RuntimeException e) {
-        response.statusInternalServerError();
+        if (e instanceof BadRequestException) {
+          response.statusBadRequest();
+        } else {
+          response.statusInternalServerError();
+        }
         response.content("{ \"message\": \"oops\" }");
         response.headerContentTypeApplicationJson();
         requestHandlerException(e);

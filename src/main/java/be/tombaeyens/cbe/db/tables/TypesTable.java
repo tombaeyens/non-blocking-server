@@ -20,40 +20,49 @@ import be.tombaeyens.cbe.db.Update;
 /**
  * @author Tom Baeyens
  */
-public class CollectionsTable extends DbTable {
+public class TypesTable extends DbTable {
 
-  public CollectionsTable(Db db) {
-    super(db, "collections");
+  public TypesTable(Db db) {
+    super(db, "types");
   }
   
   @Override
   public String sqlCreate() {
-    return "CREATE TABLE collections ( "+
-           " id   "+db.typeVarcharId()+" CONSTRAINT collections_pk PRIMARY KEY, "+
-           " name "+db.typeVarchar()+" "+
+    return "CREATE TABLE types ( "+
+           " id   "+db.typeVarcharId()+" CONSTRAINT types_pk PRIMARY KEY, "+
+           " name "+db.typeVarchar()+"," +
+           " base "+db.typeVarchar()+""+
            ")";
   }
 
-  public Collection insertCollection(Tx tx, String name) {
+  public Type insertType(Tx tx, String name, Type.Base base) {
     String id = db.nextId();
     Update update = tx.createUpdate(
-      "INSERT INTO collections ( " +
+      "INSERT INTO types ( " +
       " id, " +
-      " name " +
+      " name," +
+      " base " +
       ") " +
       "VALUES (" +
       " :id, " +
-      " :name " +
+      " :name," +
+      " :base " +
       ")")
       .setString("id", id)
       .setString("name", name)
+      .setString("base", base!=null ? base.toString() : null)
       .execute();
     
     if (update.getRowCount()==0) {
       return null;
     }
-    return new Collection()
+    return new Type()
       .id(id)
-      .name(name);
+      .name(name)
+      .base(base);
+  }
+
+  public boolean hasType(Tx tx, String typeId) {
+    return false;
   }
 }

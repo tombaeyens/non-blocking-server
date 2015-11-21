@@ -18,6 +18,8 @@ import org.junit.Test;
 
 import be.tombaeyens.cbe.db.Db;
 import be.tombaeyens.cbe.db.postgres.PostgreSqlBuilder;
+import be.tombaeyens.cbe.test.framework.TestIdGenerator;
+import be.tombaeyens.cbe.test.framework.TestLogConfiguration;
 
 
 /**

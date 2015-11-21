@@ -9,20 +9,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.test;
+package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.db.IdGenerator;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TestIdGenerator extends IdGenerator {
-  
-  static long nextId = 1;
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Posts {
 
-  @Override
-  public synchronized String nextId() {
-    return Long.toString(nextId++);
-  }
+  Post[] value();
 }

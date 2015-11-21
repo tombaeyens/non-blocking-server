@@ -9,25 +9,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
+package be.tombaeyens.cbe.test.framework;
 
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.TxLogic;
+import be.tombaeyens.cbe.util.log.SimpleSlf4jConfiguration;
+import be.tombaeyens.cbe.util.log.SimpleSlf4jILoggerFactory.Level;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RequestHandler {
+public class TestLogConfiguration {
 
-  protected Request request;
-  protected Response response;
-  protected ServiceLocator serviceLocator;
-  protected Db db;
-
-  public abstract void handle();
-
-  public <T> T tx(TxLogic txLogic) {
-    return db.tx(txLogic);
+  public static void initialize() {
+    SimpleSlf4jConfiguration.initialize()
+      .configure("io.netty", Level.INFO)
+      .configure("com.mchange", Level.INFO)
+      .configure("org.skife", Level.INFO);
   }
+
 }

@@ -11,28 +11,37 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.requests;
 
-import graphql.schema.GraphQLType;
 import be.tombaeyens.cbe.db.tables.Collection;
+import be.tombaeyens.cbe.db.tables.Type;
+import be.tombaeyens.cbe.db.tables.Type.Base;
+import be.tombaeyens.cbe.http.framework.BadRequestException;
+import be.tombaeyens.cbe.http.framework.Post;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
 
 
 /**
  * @author Tom Baeyens
  */
-public class CollectionSchemaFieldPost extends RequestHandler {
+@Post("types/:typeId/")
+public class TypePropertyPost extends RequestHandler {
   
   public static class RequestBody {
     String name;
-    GraphQLType type;
+    String typeId;
+    Base base;
   }
 
   @Override
   public void handle() {
     RequestBody requestBody = request.getContent(RequestBody.class);
+    
+    request.getPathParameter("");
 
-    Collection collection = db.tx(tx -> {
-      tx.result( db.getCollectionsTable()
-        .insertCollection(tx, requestBody.name) );
+    Collection collection = tx(tx -> {
+      String typeId = requestBody.typeId;
+      if (typeId!=null && !db.getTypesTable().hasType(tx, typeId)) {
+        throw new BadRequestException("typeId "+typeId+" doesn't exist");
+      }
     });
     
     response.contentJson(collection);

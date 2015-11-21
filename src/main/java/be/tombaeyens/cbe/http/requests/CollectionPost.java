@@ -12,14 +12,16 @@
 package be.tombaeyens.cbe.http.requests;
 
 import be.tombaeyens.cbe.db.tables.Collection;
+import be.tombaeyens.cbe.http.framework.Post;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
 
 
 /**
  * @author Tom Baeyens
  */
+@Post("/collections")
 public class CollectionPost extends RequestHandler {
-  
+
   public static class RequestBody {
     String name;
   }
@@ -28,7 +30,7 @@ public class CollectionPost extends RequestHandler {
   public void handle() {
     RequestBody requestBody = request.getContent(RequestBody.class);
 
-    Collection collection = db.tx(tx -> {
+    Collection collection = tx(tx -> {
       tx.result(db.getCollectionsTable()
         .insertCollection(tx, requestBody.name));
     });

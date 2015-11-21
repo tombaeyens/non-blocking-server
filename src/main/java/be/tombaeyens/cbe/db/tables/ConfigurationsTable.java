@@ -28,7 +28,7 @@ public class ConfigurationsTable extends DbTable {
   public String sqlCreate() {
     return "CREATE TABLE "+name+" ( "+
            "  id   "+db.typeVarcharId()+" CONSTRAINT configurations_pk PRIMARY KEY, "+
-           "  value "+db.typeVarcharName()+" "+
+           "  value "+db.typeVarchar()+" "+
            ")";
   }
 

@@ -63,7 +63,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
-import be.tombaeyens.cbe.test.TestServer;
+import be.tombaeyens.cbe.test.framework.TestServer;
+import be.tombaeyens.cbe.test.json.O;
 
 public class Request {
 
@@ -381,10 +382,9 @@ public class Request {
         return body(new InternalByteArrayEntity(raw, contentType));
     }
 
-    public Request bodyJson(final String json) {
-        return bodyString(json, ContentType.APPLICATION_JSON);
+    public Request bodyJson(Object json) {
+        return bodyString(json.toString(), ContentType.APPLICATION_JSON);
     }
-
 
     public Request bodyFile(final File file, final ContentType contentType) {
         return body(new InternalFileEntity(file, contentType));

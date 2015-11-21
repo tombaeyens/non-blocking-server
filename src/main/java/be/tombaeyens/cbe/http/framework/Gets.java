@@ -11,23 +11,15 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.TxLogic;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RequestHandler {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Gets {
 
-  protected Request request;
-  protected Response response;
-  protected ServiceLocator serviceLocator;
-  protected Db db;
-
-  public abstract void handle();
-
-  public <T> T tx(TxLogic txLogic) {
-    return db.tx(txLogic);
-  }
+  Get[] value();
 }

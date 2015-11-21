@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import be.tombaeyens.cbe.db.tables.CollectionsTable;
 import be.tombaeyens.cbe.db.tables.ConfigurationsTable;
+import be.tombaeyens.cbe.db.tables.TypesTable;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -82,6 +83,7 @@ public abstract class Db {
   protected void initializeDbTables() {
     dbTables.put(ConfigurationsTable.class, new ConfigurationsTable(this));
     dbTables.put(CollectionsTable.class, new CollectionsTable(this));
+    dbTables.put(TypesTable.class, new TypesTable(this));
   }
 
   public ConfigurationsTable getCongfigurationsTable() {
@@ -90,6 +92,10 @@ public abstract class Db {
 
   public CollectionsTable getCollectionsTable() {
     return getDbTable(CollectionsTable.class);
+  }
+
+  public TypesTable getTypesTable() {
+    return getDbTable(TypesTable.class);
   }
 
   public <T> T getDbTable(Class<T> dbTableClass) {
@@ -227,7 +233,7 @@ public abstract class Db {
     return "VARCHAR(1024)";
   }
   
-  public String typeVarcharName() {
+  public String typeVarchar() {
     return "VARCHAR(4096)";
   }
 

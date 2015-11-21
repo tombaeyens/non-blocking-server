@@ -9,22 +9,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.test;
+package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.util.log.SimpleSlf4jConfiguration;
-import be.tombaeyens.cbe.util.log.SimpleSlf4jILoggerFactory.Level;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Tom Baeyens
  */
-public class TestLogConfiguration {
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(Gets.class)
+public @interface Get {
 
-  public static void initialize() {
-    SimpleSlf4jConfiguration.initialize()
-      .configure("io.netty", Level.INFO)
-      .configure("com.mchange", Level.INFO)
-      .configure("org.skife", Level.INFO);
-  }
-
+  String value();
 }

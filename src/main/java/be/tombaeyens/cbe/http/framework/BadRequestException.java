@@ -11,23 +11,31 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.db.Db;
-import be.tombaeyens.cbe.db.TxLogic;
-
 
 /**
  * @author Tom Baeyens
  */
-public abstract class RequestHandler {
+public class BadRequestException extends RuntimeException {
 
-  protected Request request;
-  protected Response response;
-  protected ServiceLocator serviceLocator;
-  protected Db db;
+  private static final long serialVersionUID = 1L;
 
-  public abstract void handle();
+  public BadRequestException() {
+    super();
+  }
 
-  public <T> T tx(TxLogic txLogic) {
-    return db.tx(txLogic);
+  public BadRequestException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
+
+  public BadRequestException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public BadRequestException(String message) {
+    super(message);
+  }
+
+  public BadRequestException(Throwable cause) {
+    super(cause);
   }
 }

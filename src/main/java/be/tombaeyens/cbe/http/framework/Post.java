@@ -9,21 +9,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.requests;
+package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.http.framework.RequestHandler;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Tom Baeyens
  */
-public class HelloPost extends RequestHandler {
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(Posts.class)
+public @interface Post {
 
-  public void handle() {
-    response.content("U heeft gevraagd ");
-    response.content(request.getPathParameter("id"));
-    response.content("\n");
-    response.content("Request content : \n");
-    response.content(request.getContentStringUtf8());
-  }
+  String value();
 }

@@ -43,7 +43,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.util.EntityUtils;
 
 import be.tombaeyens.cbe.http.framework.ServiceLocator;
-import be.tombaeyens.cbe.test.TestServer;
+import be.tombaeyens.cbe.test.framework.TestServer;
 
 public class Response {
 
