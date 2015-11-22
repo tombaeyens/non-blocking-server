@@ -41,6 +41,7 @@ public class Response {
   protected HttpResponseStatus status = HttpResponseStatus.OK;
   protected HttpHeaders headers = new DefaultHttpHeaders();
   protected ServiceLocator serviceLocator;
+  protected String contentStringForLog;
 
   public Response(ChannelHandlerContext channelHandlerContext, ServiceLocator serviceLocator) {
     this.channelHandlerContext = channelHandlerContext;
@@ -66,6 +67,10 @@ public class Response {
   public Response statusCreated() {
     return status(HttpResponseStatus.CREATED);
   }
+  
+  public Response statusNoContent() {
+    return status(HttpResponseStatus.NO_CONTENT);
+  }
 
   public Response status(HttpResponseStatus status) {
     this.status = status;
@@ -78,7 +83,7 @@ public class Response {
 
   public Response content(String content, Charset charset) {
     if (content!=null) {
-      log.debug("<<< "+content);
+      contentStringForLog = content; // the log is produced in getHttpResponse() below 
       byteBuf.writeBytes(content.getBytes(charset));
     }
     return this;
@@ -108,6 +113,7 @@ public class Response {
 
   public HttpResponse getHttpResponse() {
     autoAddContentLengthHeader();
+    log.debug("<<< "+status+(contentStringForLog!=null?" "+contentStringForLog:""));
     DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(
             httpVersion, 
             status,

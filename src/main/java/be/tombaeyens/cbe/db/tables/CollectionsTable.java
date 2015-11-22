@@ -11,8 +11,12 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.db.tables;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import be.tombaeyens.cbe.db.Db;
 import be.tombaeyens.cbe.db.DbTable;
+import be.tombaeyens.cbe.db.QueryResult;
 import be.tombaeyens.cbe.db.Tx;
 import be.tombaeyens.cbe.db.Update;
 
@@ -55,5 +59,48 @@ public class CollectionsTable extends DbTable {
     return new Collection()
       .id(id)
       .name(name);
+  }
+
+  public Object getCollectionById(Tx tx, String id) {
+    QueryResult result = tx.createQuery(
+      "SELECT id, name " +
+      "FROM collections " +
+      "WHERE id = :id ")
+      .setString("id", id)
+      .execute();
+    
+    if (!result.next()) {
+      return null;
+    }
+    
+    return new Collection()
+        .id(result.getString("id"))
+        .name(result.getString("name"));
+  }
+
+  public List<Collection> getCollections(Tx tx) {
+    List<Collection> collections = new ArrayList<>();
+    
+    QueryResult result = tx.createQuery(
+      "SELECT id, name " +
+      "FROM collections")
+      .execute();
+    
+    while (result.next()) {
+      collections.add(new Collection()
+        .id(result.getString("id"))
+        .name(result.getString("name")));
+    }
+    
+    return collections;
+  }
+
+  public int deleteCollectionById(Tx tx, String id) {
+    return tx.createUpdate(
+      "DELETE FROM collections " +
+      "WHERE id = :id")
+      .setString("id", id)
+      .execute()
+      .getRowCount();
   }
 }

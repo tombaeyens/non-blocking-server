@@ -31,6 +31,7 @@ public class Query extends Operation {
   
   public QueryResult execute() {
     try {
+      log.debug(tx+" " +sql);
       ResultSet executeQuery = preparedStatement.executeQuery();
       return new QueryResult(this, executeQuery);
     } catch (SQLException e) {
@@ -42,4 +43,11 @@ public class Query extends Operation {
   protected Logger getLog() {
     return log;
   }
+
+  @Override
+  public Query setString(String parameterName, String value) {
+    return (Query) super.setString(parameterName, value);
+  }
+  
+  
 }

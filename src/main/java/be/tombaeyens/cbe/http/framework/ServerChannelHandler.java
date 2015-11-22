@@ -80,7 +80,16 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
       requestHandler.serviceLocator = serviceLocator;
       requestHandler.db = db;
       
+      HttpHeaders headers = fullHttpRequest.headers();
       try {
+        System.err.println();
+        Request.log.debug(">>> "+fullHttpRequest.getMethod()+" "+fullHttpRequest.getUri());
+//        for (String headerName: headers.names()) {
+//          for (String value: headers.getAll(headerName)) {
+//            Request.log.debug(">>>   "+headerName+": "+value);
+//          }
+//        }
+
         requestHandler.handle();
       } catch (RuntimeException e) {
         if (e instanceof BadRequestException) {
@@ -96,7 +105,7 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
         if (!HttpHeaders.isKeepAlive(fullHttpRequest)) {
           ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
         } else {
-          fullHttpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+          headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
           ctx.writeAndFlush(httpResponse);
         }
       }

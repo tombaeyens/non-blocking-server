@@ -13,17 +13,24 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.router;
 
+import io.netty.handler.codec.http.router.Router;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import io.netty.handler.codec.http.router.Router;
+import be.tombaeyens.cbe.http.framework.Delete;
+import be.tombaeyens.cbe.http.framework.Deletes;
 import be.tombaeyens.cbe.http.framework.Get;
 import be.tombaeyens.cbe.http.framework.Gets;
 import be.tombaeyens.cbe.http.framework.Post;
 import be.tombaeyens.cbe.http.framework.Posts;
+import be.tombaeyens.cbe.http.framework.Put;
+import be.tombaeyens.cbe.http.framework.Puts;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
-import be.tombaeyens.cbe.http.requests.CollectionPost;
+import be.tombaeyens.cbe.http.requests.CollectionDelete;
+import be.tombaeyens.cbe.http.requests.CollectionGet;
+import be.tombaeyens.cbe.http.requests.CollectionsGet;
+import be.tombaeyens.cbe.http.requests.CollectionsPost;
 import be.tombaeyens.cbe.http.requests.Oops;
 
 
@@ -33,35 +40,50 @@ import be.tombaeyens.cbe.http.requests.Oops;
 public class CbeRouter extends Router<Class< ? extends RequestHandler>> {
 
   public CbeRouter() {
-    register(CollectionPost.class);
+    scan(CollectionsPost.class);
+    scan(CollectionGet.class);
+    scan(CollectionsGet.class);
+    scan(CollectionDelete.class);
+    
     notFound(Oops.class);
   }
 
-  private void register(Class< ? extends RequestHandler> clazz) {
-    List<Post> posts = new ArrayList<>();
-    Posts postsAnnotation = clazz.getDeclaredAnnotation(Posts.class);
-    if (postsAnnotation!=null) {
-      posts.addAll(Arrays.asList(postsAnnotation.value()));
+  protected void scan(Class< ? extends RequestHandler> clazz) {
+    Gets repeatableAnnotation = clazz.getDeclaredAnnotation(Gets.class);
+    Get[] annotations = repeatableAnnotation!=null ? repeatableAnnotation.value() : null;  
+    for (Get annotation: list(clazz.getDeclaredAnnotation(Get.class), annotations)) { 
+      GET(annotation.value(), clazz);
     }
-    Post postAnnotation = clazz.getDeclaredAnnotation(Post.class);
-    if (postAnnotation!=null) {
-      posts.add(postAnnotation);
+
+    Puts repeatablePuts = clazz.getDeclaredAnnotation(Puts.class);
+    Put[] puts = repeatablePuts!=null ? repeatablePuts.value() : null;  
+    for (Put annotation: list(clazz.getDeclaredAnnotation(Put.class), puts)) { 
+      PUT(annotation.value(), clazz);
     }
-    for (Post post: posts) {
-      POST(post.value(), clazz);
+
+    Posts repeatablePosts = clazz.getDeclaredAnnotation(Posts.class);
+    Post[] posts = repeatablePosts!=null ? repeatablePosts.value() : null;  
+    for (Post annotation: list(clazz.getDeclaredAnnotation(Post.class), posts)) { 
+      POST(annotation.value(), clazz);
     }
-    
-    List<Get> gets = new ArrayList<>();
-    Gets getsAnnotation = clazz.getDeclaredAnnotation(Gets.class);
-    if (getsAnnotation!=null) {
-      gets.addAll(Arrays.asList(getsAnnotation.value()));
+
+    Deletes repeatableDeletes = clazz.getDeclaredAnnotation(Deletes.class);
+    Delete[] deletes = repeatableDeletes!=null ? repeatableDeletes.value() : null;  
+    for (Delete annotation: list(clazz.getDeclaredAnnotation(Delete.class), deletes)) { 
+      DELETE(annotation.value(), clazz);
     }
-    Get getAnnotation = clazz.getDeclaredAnnotation(Get.class);
-    if (getAnnotation!=null) {
-      gets.add(getAnnotation);
+  }
+
+  protected <T> List<T> list(T annotation, T[] annotations) {
+    List<T> list = new ArrayList<>();
+    if (annotation!=null) {
+      list.add(annotation);
     }
-    for (Get get: gets) {
-      GET(get.value(), clazz);
+    if (annotations!=null) {
+      for (T e: annotations) {
+        list.add(e);
+      }
     }
+    return list;
   }
 }

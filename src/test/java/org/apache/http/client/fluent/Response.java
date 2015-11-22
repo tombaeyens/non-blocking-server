@@ -30,7 +30,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -140,8 +143,38 @@ public class Response {
       return getServiceLocator().getGson().fromJson(bodyString, type);
     }
     
+    public static class ListType<X> implements ParameterizedType {
+      private Class<X> elementType;
+      public ListType(Class<X> wrapped) {
+          this.elementType = wrapped;
+      }
+      public Type[] getActualTypeArguments() {
+          return new Type[] {elementType};
+      }
+      public Type getRawType() {
+          return List.class;
+      }
+      public Type getOwnerType() {
+          return null;
+      }
+  }
+    
+    public <T> List<T> bodyList(Class<T> type) {
+      String bodyString = bodyStringUtf8();
+      ListType typeType = new ListType(type);
+      return getServiceLocator().getGson().fromJson(bodyString, typeType);
+    }
+    
     public Response assertStatusCreated() {
       return assertStatus(HttpStatus.SC_CREATED);
+    }
+
+    public Response assertStatusOk() {
+      return assertStatus(HttpStatus.SC_OK);
+    }
+
+    public Response assertStatusNoContent() {
+      return assertStatus(HttpStatus.SC_NO_CONTENT);
     }
 
     public Response assertStatus(int expectedStatusCode) {

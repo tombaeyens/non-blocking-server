@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Request {
   
-  private static final Logger log = LoggerFactory.getLogger(Request.class);
+  static final Logger log = LoggerFactory.getLogger(Request.class);
 
   FullHttpRequest fullHttpRequest;
   RouteResult<?> route;

@@ -12,7 +12,8 @@
 package be.tombaeyens.cbe.test;
 
 import static org.junit.Assert.*;
-import graphql.language.ObjectField;
+
+import java.util.List;
 
 import org.junit.Test;
 
@@ -27,6 +28,12 @@ public class CollectionsTest extends AbstractTest {
   
   @Test
   public void testOne() {
+    List<Collection> collections = GET("collections")
+            .execute()
+            .assertStatusOk()
+            .bodyList(Collection.class);
+    assertEquals(0, collections.size());
+
     Collection collection = POST("collections")
       .bodyJson(o("name", "invoice"))
       .execute()
@@ -35,11 +42,30 @@ public class CollectionsTest extends AbstractTest {
     assertNotNull(collection.getId());
     assertEquals("invoice", collection.getName());
     
-//    ObjectField customer = POST("collections/"+collection.getId()+"/type/fields")
-//            .bodyJson(o("name", "customer"))
-//            .execute()
-//            .assertStatusCreated()
-//            .body(ObjectField.class);
+    collections = GET("collections")
+            .execute()
+            .assertStatusOk()
+            .bodyList(Collection.class);
+    assertEquals(1, collections.size());
+    collection = collections.get(0);
+    assertNotNull(collection.getId());
+    assertEquals("invoice", collection.getName());
+
+    collection = GET("collections/"+collection.getId())
+            .execute()
+            .assertStatusOk()
+            .body(Collection.class);
+    assertNotNull(collection.getId());
+    assertEquals("invoice", collection.getName());
+
+    DELETE("collections/"+collection.getId())
+      .execute()
+      .assertStatusNoContent();
     
+    collections = GET("collections")
+            .execute()
+            .assertStatusOk()
+            .bodyList(Collection.class);
+    assertEquals(0, collections.size());    
   }
 }

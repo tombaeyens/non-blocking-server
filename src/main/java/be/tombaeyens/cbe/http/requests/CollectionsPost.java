@@ -20,7 +20,7 @@ import be.tombaeyens.cbe.http.framework.RequestHandler;
  * @author Tom Baeyens
  */
 @Post("/collections")
-public class CollectionPost extends RequestHandler {
+public class CollectionsPost extends RequestHandler {
 
   public static class RequestBody {
     String name;

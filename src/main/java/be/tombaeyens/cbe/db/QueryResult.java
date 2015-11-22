@@ -39,4 +39,20 @@ public class QueryResult {
     }
   }
 
+  public boolean next() {
+    try {
+      return resultSet.next();
+    } catch (SQLException e) {
+      throw new RuntimeException("Couldn't get next result: "+e.getMessage(), e);
+    }
+  }
+
+  public String getString(String columnLabel) {
+    try {
+      return resultSet.getString(columnLabel);
+    } catch (SQLException e) {
+      throw new RuntimeException("Couldn't get string value for column '"+columnLabel+"': "+e.getMessage(), e);
+    }
+  }
+
 }

@@ -61,6 +61,11 @@ public class AbstractTest {
     return configure(Request.Put("http://localhost:"+server.getPort()+"/"+path));
   }
 
+  public Request DELETE(final String path) {
+    return configure(Request.Delete("http://localhost:"+server.getPort()+"/"+path));
+  }
+
+
   /** configurations applied to all requests */
   private Request configure(Request request) {
     // request.socketTimeout(2000);  // default is -1
