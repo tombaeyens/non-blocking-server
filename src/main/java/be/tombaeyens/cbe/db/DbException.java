@@ -9,44 +9,45 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.http.framework;
+package be.tombaeyens.cbe.db;
 
 
 
 /**
  * @author Tom Baeyens
  */
-public class BadRequestException extends RuntimeException {
+public class DbException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public BadRequestException() {
+  public DbException() {
     super();
   }
 
-  public BadRequestException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+  public DbException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
-  
+
+  public DbException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public DbException(String message) {
+    super(message);
+  }
+
+  public DbException(Throwable cause) {
+    super(cause);
+  }
+
   public static void checkNotNull(Object o, String message, Object... args) {
     checkTrue(o==null, message, args);
   }
 
   public static void checkTrue(boolean condition, String message, Object... args) {
     if (condition) {
-      throw new BadRequestException(String.format(message, args));
+      throw new DbException(String.format(message, args));
     }
   }
 
-  public BadRequestException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public BadRequestException(String message) {
-    super(message);
-  }
-
-  public BadRequestException(Throwable cause) {
-    super(cause);
-  }
 }

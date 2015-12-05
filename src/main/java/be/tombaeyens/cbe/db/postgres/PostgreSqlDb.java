@@ -37,6 +37,10 @@ public class PostgreSqlDb extends Db {
   protected void upgradeDbVersion(int dbVersion) {
   }
 
+  public String typeJson() {
+    return "JSONB";
+  }
+
   @Override
   protected String getDropSqlTemplate() {
     return "DROP TABLE IF EXISTS %s CASCADE";

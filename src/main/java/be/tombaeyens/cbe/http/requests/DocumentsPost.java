@@ -11,40 +11,38 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.requests;
 
-import be.tombaeyens.cbe.db.tables.Collection;
-import be.tombaeyens.cbe.db.tables.Type;
-import be.tombaeyens.cbe.db.tables.Type.Base;
 import be.tombaeyens.cbe.http.framework.BadRequestException;
 import be.tombaeyens.cbe.http.framework.Post;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
+import be.tombaeyens.cbe.model.common.Collection;
+import be.tombaeyens.cbe.model.common.Document;
 
 
 /**
  * @author Tom Baeyens
  */
-@Post("types/:typeId/")
-public class TypePropertyPost extends RequestHandler {
-  
-  public static class RequestBody {
-    String name;
-    String typeId;
-    Base base;
-  }
+@Post("/documents/:collectionUrlName")
+public class DocumentsPost extends RequestHandler {
 
   @Override
   public void handle() {
-    RequestBody requestBody = request.getContent(RequestBody.class);
+    String collectionUrlName = request.getPathParameter("collectionUrlName");
+    String documentJson = request.getContentStringUtf8();
     
-    request.getPathParameter("");
+    Document document = tx(tx -> {
+      Collection collection = getDb().getCollectionsTable()
+        .getCollectionByUrlName(tx, collectionUrlName);
 
-    Collection collection = tx(tx -> {
-      String typeId = requestBody.typeId;
-      if (typeId!=null && !db.getTypesTable().hasType(tx, typeId)) {
-        throw new BadRequestException("typeId "+typeId+" doesn't exist");
-      }
+      BadRequestException.checkNotNull(collection, "No collection with urlName '%s'", collectionUrlName);
+      
+      tx.result(getDb().getDocumentsTable()
+        .insertDocument(tx, new Document()
+          .id(getDb().nextId())
+          .collectionId(collection.getId())
+          .json(documentJson)));
     });
     
-    response.contentJson(collection);
+    response.contentJson(document);
     response.statusCreated();
   }
 }

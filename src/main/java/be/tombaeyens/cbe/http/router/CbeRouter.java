@@ -31,6 +31,9 @@ import be.tombaeyens.cbe.http.requests.CollectionDelete;
 import be.tombaeyens.cbe.http.requests.CollectionGet;
 import be.tombaeyens.cbe.http.requests.CollectionsGet;
 import be.tombaeyens.cbe.http.requests.CollectionsPost;
+import be.tombaeyens.cbe.http.requests.DataTypePut;
+import be.tombaeyens.cbe.http.requests.DocumentGet;
+import be.tombaeyens.cbe.http.requests.DocumentsPost;
 import be.tombaeyens.cbe.http.requests.Oops;
 
 
@@ -40,11 +43,16 @@ import be.tombaeyens.cbe.http.requests.Oops;
 public class CbeRouter extends Router<Class< ? extends RequestHandler>> {
 
   public CbeRouter() {
-    scan(CollectionsPost.class);
+    scan(CollectionDelete.class);
     scan(CollectionGet.class);
     scan(CollectionsGet.class);
-    scan(CollectionDelete.class);
-    
+    scan(CollectionsPost.class);
+
+    scan(DocumentsPost.class);
+    scan(DocumentGet.class);
+
+    scan(DataTypePut.class);
+
     notFound(Oops.class);
   }
 

@@ -30,7 +30,7 @@ public class CollectionDelete extends RequestHandler {
     String id = request.getPathParameter("id");
 
     tx(tx -> {
-      db.getCollectionsTable()
+      getDb().getCollectionsTable()
         .deleteCollectionById(tx, id);
     });
     

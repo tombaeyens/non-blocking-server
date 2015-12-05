@@ -13,12 +13,11 @@ package be.tombaeyens.cbe.db;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.sql.Types;
 
 import org.slf4j.Logger;
+
+import com.google.gson.JsonObject;
 
 
 /**
@@ -28,43 +27,56 @@ public abstract class Operation {
   
   protected Tx tx;
   protected String sql;
-  protected Map<String, Integer> parameterIndexes;
+  protected JsonObject parameterValues = null;
+  protected int parameterIndex = 1;
+//  protected Map<String, Integer> parameterIndexes;
   protected PreparedStatement preparedStatement;
   
   public Operation(Tx tx, String sql) {
     this.tx = tx;
     this.sql = sql;
-    String parsedSql = parseParameters(sql);
-    this.preparedStatement = createPreparedStatement(tx, parsedSql);
+//    String parsedSql = parseParameters(sql);
+    this.preparedStatement = createPreparedStatement(tx, sql);
   }
 
   protected abstract Logger getLog();
 
-  protected String parseParameters(String sql) {
-    int colonIndex = sql.indexOf(':');
-    if (colonIndex==-1) {
-      return sql;
-    }
-    this.parameterIndexes = new HashMap<>();
-    StringBuilder parsedSql = new StringBuilder();
-    Pattern pattern = Pattern.compile(":[a-zA-Z0-9]+");
-    Matcher matcher = pattern.matcher(sql);
-    int start = 0;
-    int index = 1;
-    while (matcher.find()) {
-      String name = matcher.group().substring(1);
-      parameterIndexes.put(name, index);
-      index++;
-      String sqlPiece = sql.substring(start, matcher.start());
-      parsedSql.append(sqlPiece);
-      parsedSql.append('?');
-      start = matcher.end();
-    }
-    if (start<sql.length()) {
-      parsedSql.append(sql.substring(start, sql.length()));
-    }
-    return parsedSql.toString();
-  }
+//  protected String parseParameters(String sql) {
+//    int colonIndex = sql.indexOf(':');
+//    if (colonIndex==-1) {
+//      return sql;
+//    }
+//    this.parameterIndexes = new HashMap<>();
+//    StringBuilder parsedSql = new StringBuilder();
+//    Pattern pattern = Pattern.compile("(:[a-zA-Z0-9]+|\\[.*\\])");
+//    Matcher matcher = pattern.matcher(sql);
+//    int start = 0;
+//    int index = 1;
+//    while (matcher.find()) {
+//      String group = matcher.group();
+//      String sqlPiece = sql.substring(start, matcher.start());
+//      parsedSql.append(sqlPiece);
+//      if (isQuote(group)) {
+//        parsedSql.append(group.substring(1, group.length()-1));
+//        
+//      } else {
+//        String name = group.substring(1);
+//        parameterIndexes.put(name, index);
+//        parsedSql.append('?');
+//        index++;
+//      }
+//
+//      start = matcher.end();
+//    }
+//    if (start<sql.length()) {
+//      parsedSql.append(sql.substring(start, sql.length()));
+//    }
+//    return parsedSql.toString();
+//  }
+//  
+//  private boolean isQuote(String group) {
+//    return group.startsWith("[");
+//  }
 
   public PreparedStatement createPreparedStatement(Tx tx, String sql) {
     try {
@@ -74,24 +86,57 @@ public abstract class Operation {
       throw new RuntimeException(getClass().getSimpleName()+" creation failed: "+e.getMessage(), e);
     }
   }
-  
-  public Operation setString(String parameterName, String value) {
-    Integer index = null;
+
+  public Operation setString(String value) {
+    return setString(value, null);
+  }
+
+  public Operation setString(String value, String parameterName) {
+    int index = parameterIndex++;
     try {
-      index = getIndex(parameterName);
-      sql = sql.replace(":"+parameterName, "'"+value+"'");
+      if (parameterName==null) {
+        parameterName = Integer.toString(index);
+      }
+      addParameterValue(parameterName, "'"+value+"'");
       preparedStatement.setString(index, value);
       return this;
     } catch (SQLException e) {
-      throw new RuntimeException("setString("+index+",\""+value+"\") failed for parameter "+parameterName+": "+e.getMessage(), e);
+      throw new RuntimeException("set parameter failed for parameter "+parameterName+": "+e.getMessage(), e);
+    }
+  }
+  
+  public Operation setOther(Object value, String parameterName) {
+    int index = parameterIndex++;
+    try {
+      if (parameterName==null) {
+        parameterName = Integer.toString(index);
+      }
+      addParameterValue(parameterName, value!=null ? value.toString() : null);
+      preparedStatement.setObject(index, value, Types.OTHER);
+      return this;
+    } catch (SQLException e) {
+      throw new RuntimeException("setOther("+index+",\""+value+"\") failed for parameter "+parameterName+": "+e.getMessage(), e);
+    }
+  }
+  
+  protected void addParameterValue(String parameterName, String value) {
+    if (parameterValues==null) {
+      parameterValues = new JsonObject();
+    }
+    parameterValues.addProperty(parameterName, value);
+  }
+
+  protected void logParameterValues() {
+    if (parameterValues!=null) {
+      getLog().debug(tx.toString()+" "+parameterValues);
     }
   }
 
-  protected Integer getIndex(String parameterName) {
-    Integer index = parameterIndexes.get(parameterName);
-    if (index==null) {
-      throw new RuntimeException("Parameter '"+parameterName+"' not in statement '"+sql+"'");
-    }
-    return index;
-  }
+//  protected Integer getIndex(String parameterName) {
+//    Integer index = parameterIndexes.get(parameterName);
+//    if (index==null) {
+//      throw new RuntimeException("Parameter '"+parameterName+"' not in statement '"+sql+"'");
+//    }
+//    return index;
+//  }
 }

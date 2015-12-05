@@ -11,44 +11,39 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.requests;
 
-import be.tombaeyens.cbe.http.framework.Post;
+import be.tombaeyens.cbe.http.framework.BadRequestException;
+import be.tombaeyens.cbe.http.framework.Put;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
-import be.tombaeyens.cbe.model.common.Collection;
 import be.tombaeyens.cbe.model.common.DataType;
 
 
 /**
  * @author Tom Baeyens
  */
-@Post("/collections")
-public class CollectionsPost extends RequestHandler {
-
+@Put("types/:typeId")
+public class DataTypePut extends RequestHandler {
+  
   public static class RequestBody {
     String name;
-    String urlName;
+    String type;
+    String typeId;
   }
 
   @Override
   public void handle() {
-    RequestBody requestBody = request.getContent(RequestBody.class);
+    DataType dataType = request.getContent(DataType.class);
+    BadRequestException.checkNotNull(dataType, "Content must be a dataType");
     
-    Collection collection = tx(tx -> {
-      String typeId = getDb().nextId();
-      DataType dataType = new DataType()
-        .id(typeId)
-        .name(requestBody.name);
-      
-      getDb().getDataTypesTable()
-        .insertType(tx, dataType);
-       
-      tx.result(getDb().getCollectionsTable()
-        .insertCollection(tx, new Collection()
-          .name(requestBody.name)
-          .typeId(typeId)
-          .urlName(requestBody.urlName)));
+    String typeId = request.getPathParameter("typeId");
+    BadRequestException.checkNotNull(typeId, "Path parameter typeId is null");
+    dataType.setId(typeId);
+
+    tx(tx -> {
+      int rowCount = getDb().getDataTypesTable().updateType(tx, dataType);
+      BadRequestException.checkTrue(rowCount>0, "typeId %s doesn't exist", dataType.getId());
     });
     
-    response.contentJson(collection);
-    response.statusCreated();
+    response.contentJson(dataType);
+    response.statusOk();
   }
 }

@@ -11,26 +11,35 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.requests;
 
+import be.tombaeyens.cbe.http.framework.BadRequestException;
 import be.tombaeyens.cbe.http.framework.Get;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
 import be.tombaeyens.cbe.model.common.Collection;
+import be.tombaeyens.cbe.model.common.Document;
 
 
 /**
  * @author Tom Baeyens
  */
-@Get("/collections/:id")
-public class CollectionGet extends RequestHandler {
+@Get("/documents/:collectionUrlName/:documentId")
+public class DocumentGet extends RequestHandler {
 
   @Override
   public void handle() {
-    String id = request.getPathParameter("id");
-    Collection collection = tx(tx -> {
-      tx.result(getDb().getCollectionsTable()
-        .getCollectionById(tx, id));
+    String collectionUrlName = request.getPathParameter("collectionUrlName");
+    String documentId = request.getPathParameter("documentId");
+    
+    Document document = tx(tx -> {
+      Collection collection = getDb().getCollectionsTable()
+        .getCollectionByUrlName(tx, collectionUrlName);
+
+      BadRequestException.checkNotNull(collection, "No collection with urlName '%s'", collectionUrlName);
+      
+      tx.result(getDb().getDocumentsTable()
+        .getDocumentById(tx, documentId, collection.getId()));
     });
     
-    response.contentJson(collection);
+    response.contentJson(document);
     response.statusOk();
   }
 }

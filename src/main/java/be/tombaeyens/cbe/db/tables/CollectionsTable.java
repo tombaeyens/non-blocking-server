@@ -19,6 +19,7 @@ import be.tombaeyens.cbe.db.DbTable;
 import be.tombaeyens.cbe.db.QueryResult;
 import be.tombaeyens.cbe.db.Tx;
 import be.tombaeyens.cbe.db.Update;
+import be.tombaeyens.cbe.model.common.Collection;
 
 
 /**
@@ -34,72 +35,107 @@ public class CollectionsTable extends DbTable {
   public String sqlCreate() {
     return "CREATE TABLE collections ( "+
            " id   "+db.typeVarcharId()+" CONSTRAINT collections_pk PRIMARY KEY, "+
-           " name "+db.typeVarchar()+" "+
+           " name "+db.typeVarchar()+", "+
+           " urlName "+db.typeVarchar()+" "+
            ")";
   }
 
-  public Collection insertCollection(Tx tx, String name) {
-    String id = db.nextId();
+  public Collection insertCollection(Tx tx, Collection collection) {
+    if (collection.getId()==null) {
+      collection.setId(db.nextId());
+    }
+    if (collection.getUrlName()==null && collection.getName()!=null) {
+      collection.setUrlName(collection.getName()+"s");
+    }
     Update update = tx.createUpdate(
       "INSERT INTO collections ( " +
       " id, " +
-      " name " +
+      " name, " +
+      " urlName " +
       ") " +
       "VALUES (" +
-      " :id, " +
-      " :name " +
+      " ?, " +
+      " ?, " +
+      " ? " +
       ")")
-      .setString("id", id)
-      .setString("name", name)
+      .setString(collection.getId(), "id")
+      .setString(collection.getName(), "name")
+      .setString(collection.getUrlName(), "urlName")
       .execute();
     
     if (update.getRowCount()==0) {
       return null;
     }
-    return new Collection()
-      .id(id)
-      .name(name);
+    return collection;
   }
 
-  public Object getCollectionById(Tx tx, String id) {
+  protected Collection createCollection(QueryResult result) {
+    return new Collection()
+      .id(result.getString("id"))
+      .name(result.getString("name"))
+      .urlName(result.getString("urlName"));
+  }
+
+  public Collection getCollectionById(Tx tx, String id) {
     QueryResult result = tx.createQuery(
-      "SELECT id, name " +
+      "SELECT id, name, urlName " +
       "FROM collections " +
-      "WHERE id = :id ")
-      .setString("id", id)
+      "WHERE id = ? ")
+      .setString(id, "id")
       .execute();
     
-    if (!result.next()) {
-      return null;
+    try {
+      if (!result.next()) {
+        return null;
+      }
+      return createCollection(result);
+    } finally {
+      result.close();
     }
-    
-    return new Collection()
-        .id(result.getString("id"))
-        .name(result.getString("name"));
   }
+  
+  public Collection getCollectionByUrlName(Tx tx, String urlName) {
+    QueryResult result = tx.createQuery(
+      "SELECT id, name, urlName " +
+      "FROM collections " +
+      "WHERE urlName = ?")
+      .setString(urlName, "urlName")
+      .execute();
+    
+    try {
+      if (!result.next()) {
+        return null;
+      }
+      return createCollection(result);
+    } finally {
+      result.close();
+    }
+  }
+  
 
   public List<Collection> getCollections(Tx tx) {
     List<Collection> collections = new ArrayList<>();
     
     QueryResult result = tx.createQuery(
-      "SELECT id, name " +
+      "SELECT id, name, urlName " +
       "FROM collections")
       .execute();
-    
-    while (result.next()) {
-      collections.add(new Collection()
-        .id(result.getString("id"))
-        .name(result.getString("name")));
+
+    try {
+      while (result.next()) {
+        collections.add(createCollection(result));
+      }
+      return collections;
+    } finally {
+      result.close();
     }
-    
-    return collections;
   }
 
   public int deleteCollectionById(Tx tx, String id) {
     return tx.createUpdate(
       "DELETE FROM collections " +
-      "WHERE id = :id")
-      .setString("id", id)
+      "WHERE id = ?")
+      .setString(id, "id")
       .execute()
       .getRowCount();
   }

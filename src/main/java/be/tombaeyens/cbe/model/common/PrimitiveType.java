@@ -9,56 +9,47 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.db.tables;
+package be.tombaeyens.cbe.model.common;
 
 
 /**
  * @author Tom Baeyens
  */
-public class Type {
+public class PrimitiveType extends AbstractDataType {
   
-  public enum Base {
-    STRING,
-    NUMBER,
-    BOOLEAN,
-    NULL,
-    OBJECT,
-    ARRAY
-  }
-  
-  protected String id;
-  protected String name;
-  protected Base base;
+  public static final String TYPENAME_STRING = "string";
+  public static final String TYPENAME_NUMBER = "number";
+  public static final String TYPENAME_BOOLEAN = "boolean";
 
-  public String getId() {
-    return this.id;
-  }
-  public void setId(String id) {
-    this.id = id;
-  }
-  public Type id(String id) {
-    this.id = id;
-    return this;
-  }
-  
+  public static final PrimitiveType STRING = new PrimitiveType().name(TYPENAME_STRING);
+  public static final PrimitiveType NUMBER = new PrimitiveType().name(TYPENAME_NUMBER);
+  public static final PrimitiveType BOOLEAN = new PrimitiveType().name(TYPENAME_BOOLEAN);
+
+  protected String name;
+
   public String getName() {
     return this.name;
   }
   public void setName(String name) {
     this.name = name;
   }
-  public Type name(String name) {
+  public PrimitiveType name(String name) {
     this.name = name;
     return this;
   }
-  public Base getBase() {
-    return this.base;
+  
+  @Override
+  public boolean isObject() {
+    return false;
   }
-  public void setBase(Base base) {
-    this.base = base;
+
+  @Override
+  public boolean isArray() {
+    return false;
   }
-  public Type base(Base base) {
-    this.base = base;
-    return this;
+
+  @Override
+  public boolean isPrimitive() {
+    return true;
   }
 }

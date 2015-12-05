@@ -12,6 +12,7 @@
 package be.tombaeyens.cbe.db;
 
 
+
 /** Configuration properties for the database connection.
  * 
  * @author Tom Baeyens
@@ -25,7 +26,7 @@ public abstract class DbBuilder {
   protected String username;
   protected String password;
   protected IdGenerator idGenerator = new IdGenerator();
-  
+
   public abstract Db buildDb();
   
   public String getServer() {

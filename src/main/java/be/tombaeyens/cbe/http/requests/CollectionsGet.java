@@ -13,9 +13,9 @@ package be.tombaeyens.cbe.http.requests;
 
 import java.util.List;
 
-import be.tombaeyens.cbe.db.tables.Collection;
 import be.tombaeyens.cbe.http.framework.Get;
 import be.tombaeyens.cbe.http.framework.RequestHandler;
+import be.tombaeyens.cbe.model.common.Collection;
 
 
 /**
@@ -27,7 +27,7 @@ public class CollectionsGet extends RequestHandler {
   @Override
   public void handle() {
     List<Collection> collections = tx(tx -> {
-      tx.result(db.getCollectionsTable()
+      tx.result(getDb().getCollectionsTable()
         .getCollections(tx));
     });
     

@@ -64,7 +64,6 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
 import be.tombaeyens.cbe.test.framework.TestServer;
-import be.tombaeyens.cbe.test.json.O;
 
 public class Request {
 

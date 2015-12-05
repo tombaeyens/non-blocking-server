@@ -14,10 +14,11 @@ package be.tombaeyens.cbe.test;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
-import be.tombaeyens.cbe.db.tables.Collection;
+import be.tombaeyens.cbe.model.common.Collection;
 import be.tombaeyens.cbe.test.framework.AbstractTest;
 
 
@@ -27,7 +28,7 @@ import be.tombaeyens.cbe.test.framework.AbstractTest;
 public class CollectionsTest extends AbstractTest {
   
   @Test
-  public void testOne() {
+  public void testBasicLifecycle() {
     List<Collection> collections = GET("collections")
             .execute()
             .assertStatusOk()
@@ -67,5 +68,21 @@ public class CollectionsTest extends AbstractTest {
             .assertStatusOk()
             .bodyList(Collection.class);
     assertEquals(0, collections.size());    
+  }
+
+  @Test
+  public void testDefaultUrlName() {
+    Map collection = POST("collections")
+      .bodyJson(o("name", "invoice"))
+      .execute()
+      .assertStatusCreated()
+      .body(Map.class);
+    assertEquals("invoices", collection.get("urlName"));
+    
+    collection = GET("collections/"+collection.get("id"))
+            .execute()
+            .assertStatusOk()
+            .body(Map.class);
+    assertEquals("invoices", collection.get("urlName"));
   }
 }

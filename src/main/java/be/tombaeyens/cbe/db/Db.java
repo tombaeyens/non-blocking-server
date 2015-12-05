@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import be.tombaeyens.cbe.db.tables.CollectionsTable;
 import be.tombaeyens.cbe.db.tables.ConfigurationsTable;
-import be.tombaeyens.cbe.db.tables.TypesTable;
+import be.tombaeyens.cbe.db.tables.DataTypesTable;
+import be.tombaeyens.cbe.db.tables.DocumentsTable;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -38,9 +39,9 @@ public abstract class Db {
   
   protected static int APP_SCHEMA_VERSION = 1;
   
-  DataSource dataSource;
-  Map<Class<? extends DbTable>,DbTable> dbTables = new LinkedHashMap<>();
-  IdGenerator idGenerator;
+  protected DataSource dataSource;
+  protected Map<Class<? extends DbTable>,DbTable> dbTables = new LinkedHashMap<>();
+  protected IdGenerator idGenerator;
   
   public Db(DbBuilder dbBuilder) {
     try {
@@ -83,7 +84,8 @@ public abstract class Db {
   protected void initializeDbTables() {
     dbTables.put(ConfigurationsTable.class, new ConfigurationsTable(this));
     dbTables.put(CollectionsTable.class, new CollectionsTable(this));
-    dbTables.put(TypesTable.class, new TypesTable(this));
+    dbTables.put(DataTypesTable.class, new DataTypesTable(this));
+    dbTables.put(DocumentsTable.class, new DocumentsTable(this));
   }
 
   public ConfigurationsTable getCongfigurationsTable() {
@@ -94,9 +96,14 @@ public abstract class Db {
     return getDbTable(CollectionsTable.class);
   }
 
-  public TypesTable getTypesTable() {
-    return getDbTable(TypesTable.class);
+  public DataTypesTable getDataTypesTable() {
+    return getDbTable(DataTypesTable.class);
   }
+  
+  public DocumentsTable getDocumentsTable() {
+    return getDbTable(DocumentsTable.class);
+  }
+
 
   public <T> T getDbTable(Class<T> dbTableClass) {
     return (T) dbTables.get(dbTableClass);
@@ -237,7 +244,23 @@ public abstract class Db {
     return "VARCHAR(4096)";
   }
 
+  public String typeJson() {
+    return "JSON";
+  }
+
   public String nextId() {
     return idGenerator.nextId();
+  }
+
+  public DataSource getDataSource() {
+    return dataSource;
+  }
+
+  public Map<Class< ? extends DbTable>, DbTable> getDbTables() {
+    return dbTables;
+  }
+
+  public IdGenerator getIdGenerator() {
+    return idGenerator;
   }
 }

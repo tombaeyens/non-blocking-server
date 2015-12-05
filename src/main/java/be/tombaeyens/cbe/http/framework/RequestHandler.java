@@ -23,11 +23,14 @@ public abstract class RequestHandler {
   protected Request request;
   protected Response response;
   protected ServiceLocator serviceLocator;
-  protected Db db;
 
   public abstract void handle();
 
   public <T> T tx(TxLogic txLogic) {
-    return db.tx(txLogic);
+    return getDb().tx(txLogic);
+  }
+  
+  public Db getDb() {
+    return serviceLocator.getDb();
   }
 }

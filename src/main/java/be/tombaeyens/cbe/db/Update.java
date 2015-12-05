@@ -33,6 +33,7 @@ public class Update extends Operation {
   public Update execute() {
     try {
       log.debug(tx+" " +sql);
+      logParameterValues();
       rowCount = preparedStatement.executeUpdate();
       return this;
     } catch (SQLException e) {
@@ -41,9 +42,15 @@ public class Update extends Operation {
   }
 
   @Override
-  public Update setString(String parameterName, String value) {
-    return (Update) super.setString(parameterName, value);
+  public Update setString(String value, String parameterName) {
+    return (Update) super.setString(value, parameterName);
   }
+  
+  @Override
+  public Update setOther(Object value, String parameterName) {
+    return (Update) super.setOther(value, parameterName);
+  }
+
 
   public Integer getRowCount() {
     return rowCount;
