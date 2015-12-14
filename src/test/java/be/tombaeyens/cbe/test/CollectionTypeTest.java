@@ -38,7 +38,7 @@ public class CollectionTypeTest extends AbstractTest {
       .id(typeId)
       .field("customerName", PrimitiveType.STRING);
 
-    String invoiceTypeJson = gson.toJson(invoiceType);
+    String invoiceTypeJson = json.write(invoiceType);
     PUT("types/"+typeId)
       .bodyJson(invoiceTypeJson)
       .execute()

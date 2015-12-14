@@ -66,7 +66,7 @@ public class Request {
   
   public <T> T getContent(Class<T> type) {
     String content = getContentStringUtf8();
-    return serviceLocator.getGson().fromJson(content, type);
+    return serviceLocator.getJson().read(content, type);
   }
   
   public boolean isDecodingFailed() {

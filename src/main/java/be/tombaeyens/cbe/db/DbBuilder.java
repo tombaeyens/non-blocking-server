@@ -11,6 +11,8 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.db;
 
+import be.tombaeyens.json.Json;
+
 
 
 /** Configuration properties for the database connection.
@@ -26,8 +28,9 @@ public abstract class DbBuilder {
   protected String username;
   protected String password;
   protected IdGenerator idGenerator = new IdGenerator();
+  protected Json json;
 
-  public abstract Db buildDb();
+  public abstract Db build();
   
   public String getServer() {
     return this.server;
@@ -117,6 +120,17 @@ public abstract class DbBuilder {
   }
   public DbBuilder idGenerator(IdGenerator idGenerator) {
     this.idGenerator = idGenerator;
+    return this;
+  }
+
+  public Json getJson() {
+    return this.json;
+  }
+  public void setJson(Json json) {
+    this.json = json;
+  }
+  public DbBuilder json(Json json) {
+    this.json = json;
     return this;
   }
 }

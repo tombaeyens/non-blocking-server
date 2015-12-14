@@ -9,20 +9,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License. */
-package be.tombaeyens.cbe.db.postgres;
+package be.tombaeyens.cbe.test.json;
 
-import be.tombaeyens.cbe.db.CbeDb;
-import be.tombaeyens.cbe.db.CbeDbBuilder;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 /**
  * @author Tom Baeyens
  */
-public class PostgreSqlBuilder extends CbeDbBuilder {
+public class TestJson {
 
-  @Override
-  public CbeDb build() {
-    return new PostgreSqlDb(this);
-  }
-
+  static Gson gson = new GsonBuilder()
+    // .setPrettyPrinting()
+    .create();
 }

@@ -16,39 +16,20 @@ import be.tombaeyens.cbe.db.DbException;
 import be.tombaeyens.cbe.db.DbTable;
 import be.tombaeyens.cbe.db.Tx;
 import be.tombaeyens.cbe.db.Update;
-import be.tombaeyens.cbe.json.deprecated.DataTypeAdapter;
-import be.tombaeyens.cbe.json.deprecated.FieldExclusionStrategy;
 import be.tombaeyens.cbe.model.common.AbstractDataType;
 import be.tombaeyens.cbe.model.common.DataType;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import be.tombaeyens.json.Json;
 
 
 /**
  * @author Tom Baeyens
  */
-public class DataTypesTable extends DbTable {
-
-  Gson typesGson = new GsonBuilder()
-    .setExclusionStrategies(new FieldExclusionStrategy()
-      .exclude(AbstractDataType.class, "id")
-      .exclude(AbstractDataType.class, "name"))
-    // .registerTypeHierarchyAdapter(AbstractDataType.class, new DataTypeAdapter())
-    .create();
+public class DataTypesTable extends DbTable<DataType> {
   
-  public DataTypesTable(Db db) {
-    super(db, "datatypes");
+  public DataTypesTable(Db db, Json json) {
+    super(db, "datatypes", json, DataType.class);
   }
   
-  public String convertToJson(DataType type) {
-    return typesGson.toJson(type);
-  }
-
-  public DataType convertToDataType(String dataTypeJsonString) {
-    return typesGson.fromJson(dataTypeJsonString, DataType.class);
-  }
-
   @Override
   public String sqlCreate() {
     return "CREATE TABLE datatypes ( "+

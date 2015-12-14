@@ -39,7 +39,7 @@ public class DbTest {
       .username("test")
       .password("test")
       .idGenerator(new TestIdGenerator())
-      .buildDb();
+      .build();
 
     db.dropTables();
     db.initializeTables();

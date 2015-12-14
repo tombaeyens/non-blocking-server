@@ -64,6 +64,8 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
 import be.tombaeyens.cbe.test.framework.TestServer;
+import be.tombaeyens.cbe.test.json.TestJsonArray;
+import be.tombaeyens.cbe.test.json.TestJsonObject;
 
 public class Request {
 
@@ -381,8 +383,16 @@ public class Request {
         return body(new InternalByteArrayEntity(raw, contentType));
     }
 
-    public Request bodyJson(Object json) {
-        return bodyString(json.toString(), ContentType.APPLICATION_JSON);
+    public Request bodyJson(TestJsonArray jsonArray) {
+      return bodyJson(jsonArray.toString());
+    }
+
+    public Request bodyJson(TestJsonObject jsonObject) {
+      return bodyJson(jsonObject.toString());
+    }
+
+    public Request bodyJson(String jsonString) {
+        return bodyString(jsonString, ContentType.APPLICATION_JSON);
     }
 
     public Request bodyFile(final File file, final ContentType contentType) {

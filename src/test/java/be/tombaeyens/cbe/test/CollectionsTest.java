@@ -73,7 +73,8 @@ public class CollectionsTest extends AbstractTest {
   @Test
   public void testDefaultUrlName() {
     Map collection = POST("collections")
-      .bodyJson(o("name", "invoice"))
+      .bodyJson(o("name", "invoice")
+                .toString())
       .execute()
       .assertStatusCreated()
       .body(Map.class);

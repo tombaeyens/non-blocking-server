@@ -11,13 +11,13 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.db.postgres;
 
-import be.tombaeyens.cbe.db.Db;
+import be.tombaeyens.cbe.db.CbeDb;
 
 
 /**
  * @author Tom Baeyens
  */
-public class PostgreSqlDb extends Db {
+public class PostgreSqlDb extends CbeDb {
 
   public PostgreSqlDb(PostgreSqlBuilder dbBuilder) {
     super(dbBuilder);

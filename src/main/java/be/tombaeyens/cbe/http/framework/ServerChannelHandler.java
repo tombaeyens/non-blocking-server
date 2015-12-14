@@ -32,6 +32,8 @@ import io.netty.handler.codec.http.router.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.tombaeyens.json.Json;
+
 @ChannelHandler.Sharable
 public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
   
@@ -41,10 +43,12 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
   private final Router<Class< ? extends RequestHandler>> router;
   private FullHttpRequest fullHttpRequest;
   private RouteResult<Class< ? extends RequestHandler>> route;
+  private Json json;
 
   public ServerChannelHandler(Server server) {
     this.serviceLocator = server.getServiceLocator();
     this.router = serviceLocator.getRouter();
+    this.json = serviceLocator.getJson();
   }
 
   @Override
@@ -74,6 +78,7 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
       requestHandler.request = request;
       requestHandler.response = response;
       requestHandler.serviceLocator = serviceLocator;
+      requestHandler.json = json;
       
       HttpHeaders headers = fullHttpRequest.headers();
       try {

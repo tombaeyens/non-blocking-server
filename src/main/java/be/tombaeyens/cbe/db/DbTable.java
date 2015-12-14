@@ -11,18 +11,38 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.db;
 
+import be.tombaeyens.json.Json;
+
 
 /**
  * @author Tom Baeyens
  */
-public abstract class DbTable {
+public abstract class DbTable<T> {
   
   protected Db db;
   protected String name;
+  protected Json json;
+  protected Class<T> beanClass;
   
+  /** constructor for tables without json mapping */
   public DbTable(Db db, String name) {
+    this(db, name, null, null);
+  }
+
+  /** constructor for tables with json mapping */
+  public DbTable(Db db, String name, Json json, Class<T> beanClass) {
     this.db = db;
     this.name = name;
+    this.json = json;
+    this.beanClass = beanClass;
+  }
+
+  public String convertToJson(T bean) {
+    return json.write(bean);
+  }
+
+  public T convertToBean(String jsonString) {
+    return (T) json.read(jsonString, beanClass);
   }
 
   public String getName() {

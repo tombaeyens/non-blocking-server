@@ -7,9 +7,9 @@
   
   <dependencies>
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.3.1</version>
+      <groupId>be.tombaeyens</groupId>
+      <artifactId>configurable-json</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>

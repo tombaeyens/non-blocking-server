@@ -31,7 +31,7 @@ public class DataTypePut extends RequestHandler {
 
   @Override
   public void handle() {
-    DataType dataType = request.getContent(DataType.class);
+    DataType dataType = json.read(request.getContentStringUtf8(), DataType.class);
     BadRequestException.checkNotNull(dataType, "Content must be a dataType");
     
     String typeId = request.getPathParameter("typeId");

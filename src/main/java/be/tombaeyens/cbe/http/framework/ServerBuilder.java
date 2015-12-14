@@ -11,11 +11,11 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.db.DbBuilder;
+import be.tombaeyens.cbe.db.CbeDbBuilder;
 import be.tombaeyens.cbe.db.postgres.PostgreSqlBuilder;
 import be.tombaeyens.cbe.http.router.CbeRouter;
-
-import com.google.gson.GsonBuilder;
+import be.tombaeyens.cbe.json.CbeJsonBuilder;
+import be.tombaeyens.json.Json;
 
 
 /**
@@ -23,39 +23,41 @@ import com.google.gson.GsonBuilder;
  */
 public class ServerBuilder {
 
-  protected DbBuilder dbBuilder = new PostgreSqlBuilder()
+  protected CbeDbBuilder dbBuilder = new PostgreSqlBuilder()
           .server("localhost")
           .databaseName("cbe")
           .username("test")
           .password("test");
-  protected GsonBuilder gsonBuilder = new GsonBuilder();
-
+  protected CbeJsonBuilder jsonBuilder = new CbeJsonBuilder();
+  
   public ServiceLocator buildServiceLocator() {
+    Json json = jsonBuilder.build();
+    dbBuilder.json(json);
     return new ServiceLocator()
-      .db(dbBuilder.buildDb())
-      .gson(gsonBuilder.create())
+      .json(json)
+      .db(dbBuilder.build())
       .router(new CbeRouter());
   }
   
-  public DbBuilder getDbBuilder() {
+  public CbeDbBuilder getDbBuilder() {
     return this.dbBuilder;
   }
-  public void setDbBuilder(DbBuilder dbBuilder) {
+  public void setDbBuilder(CbeDbBuilder dbBuilder) {
     this.dbBuilder = dbBuilder;
   }
-  public ServerBuilder dbBuilder(DbBuilder dbBuilder) {
+  public ServerBuilder dbBuilder(CbeDbBuilder dbBuilder) {
     this.dbBuilder = dbBuilder;
     return this;
   }
 
-  public GsonBuilder getGsonBuilder() {
-    return this.gsonBuilder;
+  public CbeJsonBuilder getJsonBuilder() {
+    return this.jsonBuilder;
   }
-  public void setGsonBuilder(GsonBuilder gsonBuilder) {
-    this.gsonBuilder = gsonBuilder;
+  public void setJsonBuilder(CbeJsonBuilder jsonBuilder) {
+    this.jsonBuilder = jsonBuilder;
   }
-  public ServerBuilder gsonBuilder(GsonBuilder gsonBuilder) {
-    this.gsonBuilder = gsonBuilder;
+  public ServerBuilder jsonBuilder(CbeJsonBuilder jsonBuilder) {
+    this.jsonBuilder = jsonBuilder;
     return this;
   }
 }

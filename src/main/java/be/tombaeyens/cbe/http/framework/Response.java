@@ -90,7 +90,7 @@ public class Response {
   }
 
   public Response contentJson(Object o) {
-    String json = serviceLocator.getGson().toJson(o);
+    String json = serviceLocator.getJson().write(o);
     headerContentTypeApplicationJson();
     content(json);
     return this;

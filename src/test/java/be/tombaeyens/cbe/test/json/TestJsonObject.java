@@ -11,22 +11,23 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.test.json;
 
-import com.google.gson.Gson;
+import be.tombaeyens.json.Json;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 
-public class O {
+public class TestJsonObject {
   
   JsonObject object = new JsonObject();
-  Gson gson;
+  Json json;
   
-  public O(Gson gson) {
-    this.gson = gson;
+  public TestJsonObject(Json json) {
+    this.json = json;
   }
 
   /** append */
-  public O a(String propertyName, Object value) {
+  public TestJsonObject a(String propertyName, Object value) {
     if (value == null) {
       object.add(propertyName, null);
     } else if (value instanceof JsonElement) {
@@ -39,10 +40,10 @@ public class O {
       object.addProperty(propertyName, (Boolean)value);
     } else if (value instanceof Character) {
       object.addProperty(propertyName, (Character)value);
-    } else if (value instanceof O) {
-      object.add(propertyName, ((O)value).object);
-    } else if (value instanceof A) {
-      object.add(propertyName, ((A)value).array);
+    } else if (value instanceof TestJsonObject) {
+      object.add(propertyName, ((TestJsonObject)value).object);
+    } else if (value instanceof TestJsonArray) {
+      object.add(propertyName, ((TestJsonArray)value).array);
     } else {
       throw new RuntimeException("Unknown value type: "+value.getClass().getName());
     }
@@ -51,6 +52,6 @@ public class O {
 
   @Override
   public String toString() {
-    return gson.toJson(object);
+    return TestJson.gson.toJson(object);
   }
 }

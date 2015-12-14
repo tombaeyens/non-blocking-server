@@ -17,10 +17,9 @@ import org.junit.BeforeClass;
 
 import be.tombaeyens.cbe.db.Db;
 import be.tombaeyens.cbe.http.framework.Server;
-import be.tombaeyens.cbe.test.json.A;
-import be.tombaeyens.cbe.test.json.O;
-
-import com.google.gson.Gson;
+import be.tombaeyens.cbe.test.json.TestJsonArray;
+import be.tombaeyens.cbe.test.json.TestJsonObject;
+import be.tombaeyens.json.Json;
 
 
 /**
@@ -31,14 +30,14 @@ public class AbstractTest {
   static { TestLogConfiguration.initialize(); }
   
   public static Server server;
-  public static Gson gson; 
+  public static Json json; 
   
   @BeforeClass
   public static void startServer() {
     if (server==null) {
       server = new TestServer()
         .startup();
-      gson = server.getServiceLocator().getGson();
+      json = server.getServiceLocator().getJson();
     }
   }
   
@@ -74,19 +73,19 @@ public class AbstractTest {
     return request;
   }
   
-  public static O o() {
-    return new O(gson); 
+  public static TestJsonObject o() {
+    return new TestJsonObject(json); 
   }
 
-  public static O o(String propertyName, Object value) {
-    return new O(gson).a(propertyName, value); 
+  public static TestJsonObject o(String propertyName, Object value) {
+    return new TestJsonObject(json).a(propertyName, value); 
   }
 
-  public static A a(Object value) {
-    return new A(gson).a(value); 
+  public static TestJsonArray a(Object value) {
+    return new TestJsonArray(json).a(value); 
   }
 
-  public static A a() {
-    return new A(gson); 
+  public static TestJsonArray a() {
+    return new TestJsonArray(json); 
   }
 }

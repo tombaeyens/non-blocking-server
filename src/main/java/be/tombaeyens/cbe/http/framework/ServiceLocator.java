@@ -12,9 +12,8 @@
 package be.tombaeyens.cbe.http.framework;
 
 import io.netty.handler.codec.http.router.Router;
-import be.tombaeyens.cbe.db.Db;
-
-import com.google.gson.Gson;
+import be.tombaeyens.cbe.db.CbeDb;
+import be.tombaeyens.json.Json;
 
 
 /**
@@ -22,29 +21,29 @@ import com.google.gson.Gson;
  */
 public class ServiceLocator {
 
-  protected Db db;
-  protected Gson gson;
+  protected CbeDb db;
+  protected Json json;
   protected Router<Class<? extends RequestHandler>> router;
 
-  public Db getDb() {
+  public CbeDb getDb() {
     return this.db;
   }
-  public void setDb(Db db) {
+  public void setDb(CbeDb db) {
     this.db = db;
   }
-  public ServiceLocator db(Db db) {
+  public ServiceLocator db(CbeDb db) {
     this.db = db;
     return this;
   }
 
-  public Gson getGson() {
-    return this.gson;
+  public Json getJson() {
+    return this.json;
   }
-  public void setGson(Gson gson) {
-    this.gson = gson;
+  public void setJson(Json json) {
+    this.json = json;
   }
-  public ServiceLocator gson(Gson gson) {
-    this.gson = gson;
+  public ServiceLocator json(Json json) {
+    this.json = json;
     return this;
   }
 

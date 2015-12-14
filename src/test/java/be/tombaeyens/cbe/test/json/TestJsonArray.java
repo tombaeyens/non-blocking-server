@@ -11,7 +11,8 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.test.json;
 
-import com.google.gson.Gson;
+import be.tombaeyens.json.Json;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -20,17 +21,17 @@ import com.google.gson.JsonPrimitive;
 /** json array 
  * @author Tom Baeyens
  */
-public class A {
+public class TestJsonArray {
   
   JsonArray array = new JsonArray();
-  Gson gson;
+  Json json;
   
-  public A(Gson gson) {
-    this.gson = gson;
+  public TestJsonArray(Json json) {
+    this.json = json;
   }
 
   /** append */
-  public A a(Object value) {
+  public TestJsonArray a(Object value) {
     if (value == null) {
       array.add(null);
     } else if (value instanceof JsonElement) {
@@ -43,10 +44,10 @@ public class A {
       array.add(new JsonPrimitive((Boolean)value));
     } else if (value instanceof Character) {
       array.add(new JsonPrimitive((Character)value));
-    } else if (value instanceof O) {
-      array.add(((O)value).object);
-    } else if (value instanceof A) {
-      array.add(((A)value).array);
+    } else if (value instanceof TestJsonObject) {
+      array.add(((TestJsonObject)value).object);
+    } else if (value instanceof TestJsonArray) {
+      array.add(((TestJsonArray)value).array);
     } else {
       throw new RuntimeException("Unknown value type: "+value.getClass().getName());
     }
@@ -55,6 +56,6 @@ public class A {
   
   @Override
   public String toString() {
-    return gson.toJson(array);
+    return TestJson.gson.toJson(array);
   }
 }

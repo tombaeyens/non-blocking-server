@@ -22,17 +22,18 @@ import be.tombaeyens.cbe.db.QueryResult;
 import be.tombaeyens.cbe.db.Tx;
 import be.tombaeyens.cbe.db.Update;
 import be.tombaeyens.cbe.model.common.Document;
+import be.tombaeyens.json.Json;
 
 
 /**
  * @author Tom Baeyens
  */
-public class DocumentsTable extends DbTable {
+public class DocumentsTable extends DbTable<Document> {
   
   private static final String ALL_COLUMNS = "id, collectionId, json";
 
-  public DocumentsTable(Db db) {
-    super(db, "documents");
+  public DocumentsTable(Db db, Json json) {
+    super(db, "documents", json, Document.class);
   }
   
   @Override

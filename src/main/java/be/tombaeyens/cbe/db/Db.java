@@ -22,10 +22,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import be.tombaeyens.cbe.db.tables.CollectionsTable;
 import be.tombaeyens.cbe.db.tables.ConfigurationsTable;
-import be.tombaeyens.cbe.db.tables.DataTypesTable;
-import be.tombaeyens.cbe.db.tables.DocumentsTable;
+import be.tombaeyens.json.Json;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -42,6 +40,7 @@ public abstract class Db {
   protected DataSource dataSource;
   protected Map<Class<? extends DbTable>,DbTable> dbTables = new LinkedHashMap<>();
   protected IdGenerator idGenerator;
+  protected Json json;
   
   public Db(DbBuilder dbBuilder) {
     try {
@@ -67,8 +66,7 @@ public abstract class Db {
       
       this.dataSource = comboPooledDataSource;
       this.idGenerator = dbBuilder.getIdGenerator();
-
-      initializeDbTables();
+      this.json = dbBuilder.getJson();
 
     } catch (RuntimeException e) {
       throw e;
@@ -77,34 +75,6 @@ public abstract class Db {
     }                                  
   }
   
-  /** to customize a collection, override, first delegate to 
-   * this implementation and then overwrite the keys used 
-   * in this implementation with customized collection 
-   * implementations as values. */
-  protected void initializeDbTables() {
-    dbTables.put(ConfigurationsTable.class, new ConfigurationsTable(this));
-    dbTables.put(CollectionsTable.class, new CollectionsTable(this));
-    dbTables.put(DataTypesTable.class, new DataTypesTable(this));
-    dbTables.put(DocumentsTable.class, new DocumentsTable(this));
-  }
-
-  public ConfigurationsTable getCongfigurationsTable() {
-    return getDbTable(ConfigurationsTable.class);
-  }
-
-  public CollectionsTable getCollectionsTable() {
-    return getDbTable(CollectionsTable.class);
-  }
-
-  public DataTypesTable getDataTypesTable() {
-    return getDbTable(DataTypesTable.class);
-  }
-  
-  public DocumentsTable getDocumentsTable() {
-    return getDbTable(DocumentsTable.class);
-  }
-
-
   public <T> T getDbTable(Class<T> dbTableClass) {
     return (T) dbTables.get(dbTableClass);
   }

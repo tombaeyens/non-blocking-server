@@ -30,8 +30,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -140,29 +138,12 @@ public class Response {
     
     public <T> T body(Class<T> type) {
       String bodyString = bodyStringUtf8();
-      return getServiceLocator().getGson().fromJson(bodyString, type);
+      return getServiceLocator().getJson().read(bodyString, type);
     }
-    
-    public static class ListType<X> implements ParameterizedType {
-      private Class<X> elementType;
-      public ListType(Class<X> wrapped) {
-          this.elementType = wrapped;
-      }
-      public Type[] getActualTypeArguments() {
-          return new Type[] {elementType};
-      }
-      public Type getRawType() {
-          return List.class;
-      }
-      public Type getOwnerType() {
-          return null;
-      }
-  }
     
     public <T> List<T> bodyList(Class<T> type) {
       String bodyString = bodyStringUtf8();
-      ListType typeType = new ListType(type);
-      return getServiceLocator().getGson().fromJson(bodyString, typeType);
+      return getServiceLocator().getJson().read(bodyString, List.class, type);
     }
     
     public Response assertStatusCreated() {

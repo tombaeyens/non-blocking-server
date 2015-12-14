@@ -11,8 +11,9 @@
  * limitations under the License. */
 package be.tombaeyens.cbe.http.framework;
 
-import be.tombaeyens.cbe.db.Db;
+import be.tombaeyens.cbe.db.CbeDb;
 import be.tombaeyens.cbe.db.TxLogic;
+import be.tombaeyens.json.Json;
 
 
 /**
@@ -23,6 +24,7 @@ public abstract class RequestHandler {
   protected Request request;
   protected Response response;
   protected ServiceLocator serviceLocator;
+  protected Json json;
 
   public abstract void handle();
 
@@ -30,7 +32,7 @@ public abstract class RequestHandler {
     return getDb().tx(txLogic);
   }
   
-  public Db getDb() {
+  public CbeDb getDb() {
     return serviceLocator.getDb();
   }
 }

@@ -20,15 +20,16 @@ import be.tombaeyens.cbe.db.QueryResult;
 import be.tombaeyens.cbe.db.Tx;
 import be.tombaeyens.cbe.db.Update;
 import be.tombaeyens.cbe.model.common.Collection;
+import be.tombaeyens.json.Json;
 
 
 /**
  * @author Tom Baeyens
  */
-public class CollectionsTable extends DbTable {
+public class CollectionsTable extends DbTable<Collection> {
 
-  public CollectionsTable(Db db) {
-    super(db, "collections");
+  public CollectionsTable(Db db, Json json) {
+    super(db, "collections", json, Collection.class);
   }
   
   @Override
